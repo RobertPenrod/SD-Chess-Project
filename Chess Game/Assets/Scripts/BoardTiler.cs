@@ -7,6 +7,7 @@ public class BoardTiler : MonoBehaviour
     public Vector2Int TileCount;
     public float TileSize = 1f;
     public bool CenterBoard;
+    public Transform tileHolder;
     public GameObject prefabTile1;
     public GameObject prefabTile2;
 
@@ -22,7 +23,7 @@ public class BoardTiler : MonoBehaviour
         InitBoard();
     }
 
-    void InitBoard()
+    public void InitBoard()
     {
         DeleteBoard();
         ExtensionMethods.DelayedInvoke(-2, this, () =>
@@ -34,7 +35,7 @@ public class BoardTiler : MonoBehaviour
 
     void DeleteBoard()
     {
-        foreach(Transform t in this.transform)
+        foreach(Transform t in tileHolder)
         {
             ExtensionMethods.DelayedInvoke(-1, this, () =>
             {
@@ -65,7 +66,7 @@ public class BoardTiler : MonoBehaviour
 
                 if (prefabToSpawn == null) continue;
                 
-                GameObject spawnedTile = Instantiate(prefabToSpawn, spawnPos, Quaternion.identity, this.transform);
+                GameObject spawnedTile = Instantiate(prefabToSpawn, spawnPos, Quaternion.identity, tileHolder);
                 spawnedTile.transform.localScale = Vector3.one * TileSize;
             }
         }

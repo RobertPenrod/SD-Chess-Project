@@ -20,7 +20,6 @@ public static class ExtensionMethods
     {
         monoBehavior.StartCoroutine(DelayedInvoke_Coroutine(function, delay));
     }
-
     static IEnumerator DelayedInvoke_Coroutine(Action function, float delayTime)
     {
         if (delayTime <= 0f)
@@ -33,6 +32,19 @@ public static class ExtensionMethods
         else
             yield return new WaitForSecondsRealtime(delayTime);
         function.Invoke();
+    }
+    public static void RepeatingInvoke(float waitTime, float repeatRate, int repeatCount, MonoBehaviour monoBehaviour, Action function)
+    {
+        monoBehaviour.StartCoroutine(RepeatingInvoke_Coroutine(waitTime, repeatRate, repeatCount, function));
+    }
+    static IEnumerator RepeatingInvoke_Coroutine(float waitTime, float repeatRate, int repeatCount, Action function)
+    {
+        yield return new WaitForSecondsRealtime(waitTime);
+        for(int c = 0; repeatCount <= 0 || c < repeatCount; c++)
+        {
+            yield return new WaitForSecondsRealtime(repeatRate);
+            function.Invoke();
+        }
     }
 
     public static void ChangeFullTimeScale(float timeScale)
@@ -73,5 +85,10 @@ public static class ExtensionMethods
             list[indexB] = temp;
         }
         return list;
+    }
+
+    public static T RandomListItem<T>(List<T> list)
+    {
+        return list[Random.Range(0, list.Count)];
     }
 }
