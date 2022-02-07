@@ -8,8 +8,9 @@ public class Piece : ScriptableObject
     public Sprite icon;
     public bool isRoyal;
     public Vector2Int currentPos;
-    [SerializeField] int teamNumber;
+    public int teamNumber;
     public MoveBehavior moveBehavior;
+    public bool hasMoved { get; private set; }
 
     [HideInInspector] public Board board;
 
@@ -32,7 +33,7 @@ public class Piece : ScriptableObject
         }
 
         currentPos = pos;
-        space.pieceList.Add(this);
+        space.piece = this;
         board.pieceList.Add(this);
     }
 
@@ -47,7 +48,7 @@ public class Piece : ScriptableObject
             return;
         }
 
-        space.pieceList.Remove(this);
+        space.piece = null;
         board.pieceList.Remove(this);
         board = null;
         currentPos = new Vector2Int(-1, -1);
@@ -59,10 +60,11 @@ public class Piece : ScriptableObject
         Space targetSpace = board?.GetSpace(newPos);
         if (targetSpace == null) { return false; }
 
-        board.GetSpace(currentPos).pieceList.Remove(this);
-        targetSpace.pieceList.Add(this);
+        board.GetSpace(currentPos).piece = null;
+        targetSpace.piece = this;
         currentPos = newPos;
 
+        hasMoved = true;
         return true;
     }
 

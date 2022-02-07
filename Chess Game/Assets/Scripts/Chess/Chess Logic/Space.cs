@@ -4,5 +4,5 @@ using UnityEngine;
 
 public class Space
 {
-    public List<Piece> pieceList = new List<Piece>();
+    public Piece piece;
 }

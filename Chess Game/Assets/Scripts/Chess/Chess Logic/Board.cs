@@ -35,4 +35,16 @@ public class Board : ScriptableObject
     {
         return pos.x >= 0 && pos.y >= 0 && pos.x < boardSize.x && pos.y < boardSize.y;
     }
+
+    public Vector2Int GetPieceForwardDir(Piece piece)
+    {
+        switch (piece.teamNumber)
+        {
+            case 1:
+                return new Vector2Int(0, 1);
+            case 2:
+                return new Vector2Int(0, -1);
+        };
+        return new Vector2Int();
+    }
 }

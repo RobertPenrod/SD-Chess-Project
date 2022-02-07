@@ -39,13 +39,12 @@ public class ChessGame : MonoBehaviour
 
         // Create Piece Data
         Piece newPiece = CreatePiece(testPiece1);
-        newPiece.AddToBoard(board, new Vector2Int(4, 4));
+        newPiece.AddToBoard(board, new Vector2Int(4, 8));
+        newPiece.teamNumber = 2;
 
         newPiece = CreatePiece(testPiece2);
         newPiece.AddToBoard(board, new Vector2Int(4, 0));
-
-        newPiece = CreatePiece(testPiece2);
-        newPiece.AddToBoard(board, new Vector2Int(4, 0));
+        newPiece.teamNumber = 1;
 
         BindGameObjectPiecesToData();
 
@@ -53,8 +52,11 @@ public class ChessGame : MonoBehaviour
         {
             Piece randomPiece = ExtensionMethods.RandomListItem(pieceList);
             List<Vector2Int> moveList = randomPiece.GetMoves();
-            Vector2Int randomMove = ExtensionMethods.RandomListItem(moveList);
-            randomPiece.MovePiece(randomMove);
+            if (moveList.Count > 0)
+            {
+                Vector2Int randomMove = ExtensionMethods.RandomListItem(moveList);
+                randomPiece.MovePiece(randomMove);
+            }
         });
     }
 

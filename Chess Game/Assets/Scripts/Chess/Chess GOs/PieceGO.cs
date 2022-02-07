@@ -17,6 +17,8 @@ public class PieceGO : MonoBehaviour
         spriteRend.sprite = piece.icon;
 
         gameObject.name = p.name.Substring(0, p.name.Length - 7); // -7 to remove "(clone)" form name
+
+        spriteRend.color = p.teamNumber == 1 ? Color.white : Color.black;
     }
 
     private void Update()

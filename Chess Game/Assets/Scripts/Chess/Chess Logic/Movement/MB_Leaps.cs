@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Chess Logic/Move Behavior/Leaps")]
-public class Leaps_MB : MoveBehavior
+public class MB_Leaps : MoveBehavior
 { 
     public List<Vector2Int> leapOffset;
 
-    public override List<Vector2Int> GetMoves(Piece piece, Vector2Int? previousPos = null)
+    protected override List<Vector2Int> GetMoves_Abstract(Piece piece, Vector2Int? previousPos = null)
     {
         List<Vector2Int> moves = new List<Vector2Int>();
 
@@ -24,9 +24,9 @@ public class Leaps_MB : MoveBehavior
                 continue;
 
             Space space = board.GetSpace(leapPos);
-            if(space.pieceList.Count > 0)
+            if(space.piece != null)
             {
-                if(piece.IsOnSameTeam(space.pieceList[0]))
+                if(piece.IsOnSameTeam(space.piece))
                 {
                     continue;
                 }

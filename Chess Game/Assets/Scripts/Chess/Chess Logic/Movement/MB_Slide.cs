@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Chess Logic/Move Behavior/Slide")]
-public class Slide_MB : MoveBehavior
+public class MB_Slide : MoveBehavior
 {
     public Vector2Int dir;
     public int range = 0;
 
-    public override List<Vector2Int> GetMoves(Piece piece, Vector2Int? previousPos = null)
+    protected override List<Vector2Int> GetMoves_Abstract(Piece piece, Vector2Int? previousPos = null)
     {
         List<Vector2Int> moves = new List<Vector2Int>();
 
@@ -24,7 +24,9 @@ public class Slide_MB : MoveBehavior
             // Check if maximum range reached
             currentRange++;
             if (range > 0 && currentRange > range)
+            {
                 break;
+            }
 
             pos += dir;
 
@@ -34,10 +36,10 @@ public class Slide_MB : MoveBehavior
             if (!isOnBoard)
                 break;
             Space space = board.GetSpace(pos);
-            bool spaceHasPiece = space.pieceList.Count > 0;
+            bool spaceHasPiece = space.piece != null;
             if(spaceHasPiece)
             {
-                if(piece.IsOnSameTeam(space.pieceList[0]))
+                if(piece.IsOnSameTeam(space.piece))
                 {
                     // if same team, move invalid and done
                     break;
