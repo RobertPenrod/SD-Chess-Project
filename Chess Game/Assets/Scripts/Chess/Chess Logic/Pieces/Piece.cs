@@ -14,6 +14,8 @@ public class Piece : ScriptableObject
 
     [HideInInspector] public Board board;
 
+    public Vector2Int forward => board.GetPieceForwardDir(this);
+
     public bool IsOnSameTeam(Piece otherPiece)
     {
         return teamNumber == otherPiece.teamNumber;
@@ -40,8 +42,12 @@ public class Piece : ScriptableObject
     public void RemoveFromBoard()
     {
         if (board == null) return;
-        
+
         Space space = board.GetSpace(currentPos);
+        board.pieceList.Remove(this);
+        board = null;
+        currentPos = new Vector2Int(-1, -1);
+
         if (space == null)
         {
             Debug.LogError("RemoveFromBoard pos (" + currentPos + ") not in range");
@@ -49,9 +55,6 @@ public class Piece : ScriptableObject
         }
 
         space.piece = null;
-        board.pieceList.Remove(this);
-        board = null;
-        currentPos = new Vector2Int(-1, -1);
     }
 
     public bool MovePiece(int x, int y) => MovePiece(new Vector2Int(x, y));
@@ -61,6 +64,9 @@ public class Piece : ScriptableObject
         if (targetSpace == null) { return false; }
 
         board.GetSpace(currentPos).piece = null;
+
+        targetSpace.piece?.RemoveFromBoard(); // Capture piece
+
         targetSpace.piece = this;
         currentPos = newPos;
 

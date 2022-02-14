@@ -18,12 +18,13 @@ public class MB_Leaps : MoveBehavior
 
         foreach (Vector2Int o in leapOffset)
         {
-            Vector2Int leapPos = pos + o;
+            Vector2Int pieceSpaceLeapPos = pos + o;
+            Vector2Int boardPos = PieceToBoardSpace(piece, pieceSpaceLeapPos);
 
-            if (!board.IsPosOnBoard(leapPos))
+            if (!board.IsPosOnBoard(boardPos))
                 continue;
 
-            Space space = board.GetSpace(leapPos);
+            Space space = board.GetSpace(boardPos);
             if(space.piece != null)
             {
                 if(piece.IsOnSameTeam(space.piece))
@@ -32,7 +33,7 @@ public class MB_Leaps : MoveBehavior
                 }
             }
 
-            moves.Add(leapPos);
+            moves.Add(boardPos);
         }
         
         return moves;

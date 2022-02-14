@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 45b7e6e69904a1e42a6b42f1551d3b8b, type: 3}
-  m_Name: Queen
+  m_Name: King
   m_EditorClassIdentifier: 
-  icon: {fileID: -141437626377621671, guid: a662955e98fa06a44953a37523c2771e, type: 3}
-  isRoyal: 0
+  icon: {fileID: -5299287544127608355, guid: a662955e98fa06a44953a37523c2771e, type: 3}
+  isRoyal: 1
   currentPos: {x: 0, y: 0}
   teamNumber: 0
-  moveBehavior: {fileID: 11400000, guid: 58c328fbc3b1f574897f2eb4f3e74816, type: 2}
+  moveBehavior: {fileID: 11400000, guid: af4e467ac89f64545b8466f7ee80fd3d, type: 2}
   board: {fileID: 0}

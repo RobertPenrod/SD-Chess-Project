@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   firstMoveOnly: 0
   moveType: 2
+  canTakeEnPassant: 0
+  isEnPassantable: 0
   moveBehaviorList:
   - {fileID: 11400000, guid: d81db7bc97de37e4196d91a848dd182f, type: 2}
   - {fileID: 11400000, guid: 71a8d57fc63cd5e4f896c2bb4c59410f, type: 2}

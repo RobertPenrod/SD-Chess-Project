@@ -12,9 +12,9 @@ public class MB_Slide : MoveBehavior
     {
         List<Vector2Int> moves = new List<Vector2Int>();
 
-        Vector2Int pos = piece.currentPos;
+        Vector2Int pieceSpacePos = piece.currentPos;
         if (previousPos != null)
-            pos = previousPos.Value;
+            pieceSpacePos = previousPos.Value;
         Board board = piece.board;
 
         bool moveDone = false;
@@ -28,14 +28,15 @@ public class MB_Slide : MoveBehavior
                 break;
             }
 
-            pos += dir;
+            pieceSpacePos += dir;
+            Vector2Int boardPos = PieceToBoardSpace(piece, pieceSpacePos);
 
             // Is the new position valid,
             // are we done moving?
-            bool isOnBoard = board.IsPosOnBoard(pos);
+            bool isOnBoard = board.IsPosOnBoard(boardPos);
             if (!isOnBoard)
                 break;
-            Space space = board.GetSpace(pos);
+            Space space = board.GetSpace(boardPos);
             bool spaceHasPiece = space.piece != null;
             if(spaceHasPiece)
             {
@@ -47,13 +48,13 @@ public class MB_Slide : MoveBehavior
                 else
                 {
                     // of different team, can capture, move is done
-                    moveDone = false;
+                    moveDone = true;
                 }
             }
 
             // if valid
             // add new pos to moves
-            moves.Add(pos);
+            moves.Add(boardPos);
         }
 
         return moves;

@@ -14,5 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   firstMoveOnly: 1
   moveType: 0
+  canTakeEnPassant: 0
+  isEnPassantable: 1
   dir: {x: 0, y: 1}
   range: 2

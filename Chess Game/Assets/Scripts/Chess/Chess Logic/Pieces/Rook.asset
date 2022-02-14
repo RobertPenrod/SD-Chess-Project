@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45b7e6e69904a1e42a6b42f1551d3b8b, type: 3}
   m_Name: Rook
   m_EditorClassIdentifier: 
-  icon: {fileID: 1801684832408766203, guid: 80cbd4314ccdf1147886ef575adab063, type: 3}
+  icon: {fileID: -6808010544129747139, guid: a662955e98fa06a44953a37523c2771e, type: 3}
   isRoyal: 0
   currentPos: {x: 0, y: 0}
   teamNumber: 0
