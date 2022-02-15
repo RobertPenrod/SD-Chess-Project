@@ -9,6 +9,7 @@ public class ChessGame : MonoBehaviour
     
     [Header("Testing")]
     public GameObject piecePrefab;
+    public UCI uci;
     public Piece testPiece1;
     public Piece testPiece2;
 
@@ -34,6 +35,7 @@ public class ChessGame : MonoBehaviour
 
     private void Awake()
     {
+        uci = new UCI();
         board = new Board(new Vector2Int(25, 15));
         boardGO.BindBoard(board);
 
