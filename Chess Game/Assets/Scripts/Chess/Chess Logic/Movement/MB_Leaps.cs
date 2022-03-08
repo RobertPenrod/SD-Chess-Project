@@ -7,9 +7,9 @@ public class MB_Leaps : MoveBehavior
 { 
     public List<Vector2Int> leapOffset;
 
-    protected override List<Vector2Int> GetMoves_Abstract(Piece piece, Vector2Int? previousPos = null)
+    protected override List<MoveData> GetMoves_Abstract(Piece piece, Vector2Int? previousPos = null, bool isThreatMap = false)
     {
-        List<Vector2Int> moves = new List<Vector2Int>();
+        List<MoveData> moves = new List<MoveData>();
 
         Vector2Int pos = piece.currentPos;
         if (previousPos != null)
@@ -33,7 +33,8 @@ public class MB_Leaps : MoveBehavior
                 }
             }
 
-            moves.Add(boardPos);
+            MoveData moveData = new MoveData(piece, piece.currentPos, boardPos);
+            moves.Add(moveData);
         }
         
         return moves;

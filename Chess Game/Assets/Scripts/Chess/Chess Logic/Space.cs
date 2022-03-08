@@ -5,4 +5,9 @@ using UnityEngine;
 public class Space
 {
     public Piece piece;
+
+    public void Clear()
+    {
+        piece = null;
+    }
 }

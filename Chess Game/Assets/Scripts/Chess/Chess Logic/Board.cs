@@ -47,4 +47,16 @@ public class Board : ScriptableObject
         };
         return new Vector2Int();
     }
+
+    public void Clear()
+    {
+        pieceList.Clear();
+        for (int x = 0; x < boardSize.x; x++)
+        {
+            for (int y = 0; y < boardSize.y; y++)
+            {
+                spaces[x, y] = new Space();
+            }
+        }
+    }
 }

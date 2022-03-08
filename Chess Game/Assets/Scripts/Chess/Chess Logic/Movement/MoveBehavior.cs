@@ -22,27 +22,93 @@ public abstract class MoveBehavior : ScriptableObject
         MoveAndCapture
     }
 
-    public List<Vector2Int> GetMoves(Piece piece, Vector2Int? previousPos = null)
+    public List<MoveData> GetMoves(Piece piece, Vector2Int? previousPos = null, bool removeCheckMoves = false)
     {
-        if(firstMoveOnly && piece.hasMoved)
+        bool canGetMove = piece.board != null && (!firstMoveOnly || !piece.hasMoved);
+        if (!canGetMove)
         {
-            // return empty list since piece has already moved.
-            return new List<Vector2Int>();
+            return new List<MoveData>();
         }
 
         Board board = piece.board;
-        List<Vector2Int> moves = GetMoves_Abstract(piece, previousPos);
+        List<MoveData> moves = GetMoves_Abstract(piece, previousPos);
 
-        moves = FilterMoveType(moves, piece);
+        moves = FilterMoveAndCapture(moves, piece);
         moves = RemoveDuplicateMoves(moves, piece);
+
+        if (removeCheckMoves)
+        {
+            moves = RemoveCheckMoves(moves, piece);
+        }
+
+        // Test
+        if(isEnPassantable)
+        {
+            moves.ForEach(x => x.OnMoveMade_Event += () =>
+            {
+                // Drop En Passant Zone behind piece,
+                // Zone is cleared when player owning piece takes their next turn.
+            });
+        }
 
         return moves;
     }
-    protected abstract List<Vector2Int> GetMoves_Abstract(Piece piece, Vector2Int? previousPos = null);
+    protected abstract List<MoveData> GetMoves_Abstract(Piece piece, Vector2Int? previousPos = null, bool isThreatMap = false);
 
-    List<Vector2Int> RemoveDuplicateMoves(List<Vector2Int> moves, Piece piece)
+    public List<MoveData> GetThreatMapMoves(Piece piece)
     {
-        List<Vector2Int> finalMoves = new List<Vector2Int>();
+        bool canGetThreatMap = piece.board != null && canCapture && (!firstMoveOnly || !piece.hasMoved);
+        if (!canGetThreatMap)
+        {
+            return new List<MoveData>();
+        }
+
+        // Return move without filters to get all squares under attack by this piece.
+        return GetMoves_Abstract(piece, isThreatMap: true);
+    }
+
+    List<MoveData> RemoveCheckMoves(List<MoveData> moveList, Piece piece)
+    {
+        List<MoveData> finalMoves = new List<MoveData>();
+
+        int teamNum = piece.teamNumber;
+        ChessGame mainGame = piece.chessGame;
+
+        ChessGame testGame = new ChessGame(mainGame.gameBoardList[0].boardSize, mainGame.playerCount);
+        testGame.pieceMap = mainGame.pieceMap;
+
+        ChessGameManager gameManager = MonoBehaviour.FindObjectOfType<ChessGameManager>();
+        gameManager.checkTestStateList.Clear();
+
+        foreach (MoveData move in moveList)
+        {
+            Vector2Int dest = move.dest;
+            testGame.LoadState(mainGame.GetState());
+            bool moveSuccesful = testGame.MakeMove(piece.currentPos, dest, isSimulation : true);
+
+            // Testing
+            StateData testState = testGame.GetState();
+            gameManager.checkTestStateList.Add(testState);
+
+            bool inCheck = testGame.teamInfo[teamNum].isInCheck;
+
+            int stateNum = moveList.IndexOf(move);
+            //Debug.Log("State " + stateNum + ", team 2 in check: " + testGame.teamInfo[2].isInCheck + ", team " + teamNum + ": " + inCheck);
+
+            if (moveSuccesful && !inCheck)
+            {
+                finalMoves.Add(move);
+            }
+        }
+
+        //gameManager.ShowTestStates();
+
+        return finalMoves;
+    }
+
+    List<MoveData> RemoveDuplicateMoves(List<MoveData> moves, Piece piece)
+    {
+        List<MoveData> finalMoves = new List<MoveData>();
         moves.ForEach(x =>
         {
             if(!finalMoves.Contains(x))
@@ -52,12 +118,12 @@ public abstract class MoveBehavior : ScriptableObject
         });
         return finalMoves;
     }
-    List<Vector2Int> FilterMoveType(List<Vector2Int> moves, Piece piece)
+    List<MoveData> FilterMoveAndCapture(List<MoveData> moves, Piece piece)
     {
         Board board = piece.board;
         for(int i = 0; i < moves.Count; i++)
         {
-            Vector2Int movePos = moves[i];
+            Vector2Int movePos = moves[i].dest;
             Space moveSpace = board.GetSpace(movePos);
             bool spaceHasPiece = moveSpace.piece != null;
 

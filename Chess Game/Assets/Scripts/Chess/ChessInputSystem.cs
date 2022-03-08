@@ -16,6 +16,8 @@ public class ChessInputSystem : MonoBehaviour
 
     ChessGameManager gameManager;
 
+    List<Vector2Int> possibleMovePositions = new List<Vector2Int>();
+
     private void Awake()
     {
         gameManager = FindObjectOfType<ChessGameManager>();
@@ -38,12 +40,11 @@ public class ChessInputSystem : MonoBehaviour
         if (selectedPieceUI.piece.teamNumber != gameManager.chessGame.turnIndex) return;
 
         Vector2Int mouseBoardPos = GetMouseBoardPos();
-        if(selectedPieceUI.piece.GetMoves().Contains(mouseBoardPos))
+        if(possibleMovePositions.Contains(mouseBoardPos))
         {
-            selectedPieceUI.piece.MovePiece(mouseBoardPos);
+            gameManager.chessGame.MakeMove(selectedPieceUI.piece.currentPos, mouseBoardPos);
             pieceMoved = true;
             SelectPiece(null);
-            gameManager.chessGame.EndTurn();
         }
     }
 
@@ -73,12 +74,16 @@ public class ChessInputSystem : MonoBehaviour
             selectedGFX.transform.position = selectedGFXPos;
 
             // Show move preview stuff
-            List<Vector2Int> moves = selectedPieceUI.piece.GetMoves();
+            List<MoveData> moves = selectedPieceUI.piece.GetMoves();
             ShowMovePreview(moves);
+
+            possibleMovePositions.Clear();
+            moves.ForEach(x => possibleMovePositions.Add(x.dest));
         }
         else
         {
             ClearMovePreview();
+            possibleMovePositions.Clear();
         }
     }
 
@@ -91,12 +96,12 @@ public class ChessInputSystem : MonoBehaviour
         }
     }
 
-    void ShowMovePreview(List<Vector2Int> moves)
+    void ShowMovePreview(List<MoveData> moves)
     {
         ClearMovePreview();
-        foreach(Vector2Int move in moves)
+        foreach(MoveData move in moves)
         {
-            Vector3 pos = new Vector3(move.x, move.y, moveIconPrefab.transform.position.z);
+            Vector3 pos = new Vector3(move.dest.x, move.dest.y, moveIconPrefab.transform.position.z);
             GameObject newMoveIcon = Instantiate(moveIconPrefab, pos, Quaternion.identity, this.transform);
             moveIconList.Add(newMoveIcon);
         }

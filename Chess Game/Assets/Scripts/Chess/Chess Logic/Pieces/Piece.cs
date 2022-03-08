@@ -13,8 +13,11 @@ public class Piece : ScriptableObject
     public bool hasMoved { get; private set; }
 
     [HideInInspector] public Board board;
+    [HideInInspector] public ChessGame chessGame;
 
     public Vector2Int forward => board.GetPieceForwardDir(this);
+
+    public int mapIndex;
 
     public bool IsOnSameTeam(Piece otherPiece)
     {
@@ -74,8 +77,16 @@ public class Piece : ScriptableObject
         return true;
     }
 
-    public List<Vector2Int> GetMoves()
+    public List<MoveData> GetMoves(bool isSimulation = false)
     {
-        return moveBehavior.GetMoves(this);
+        return moveBehavior.GetMoves(this, removeCheckMoves : !isSimulation);
+    }
+
+    public List<Vector2Int> GetThreatMap()
+    {
+        List<MoveData> threatmapMoves = moveBehavior.GetThreatMapMoves(this);
+        List<Vector2Int> threatMap = new List<Vector2Int>();
+        threatmapMoves.ForEach(x => threatMap.Add(x.dest));
+        return threatMap;
     }
 }

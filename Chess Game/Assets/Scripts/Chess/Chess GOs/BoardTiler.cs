@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -25,6 +26,8 @@ public class BoardTiler : MonoBehaviour
 
     public void InitBoard()
     {
+        if (!this.gameObject.activeInHierarchy) return;
+
         DeleteBoard();
         ExtensionMethods.DelayedInvoke(-2, this, () =>
         {
@@ -40,7 +43,16 @@ public class BoardTiler : MonoBehaviour
             ExtensionMethods.DelayedInvoke(-1, this, () =>
             {
                 if (t != null)
-                    DestroyImmediate(t?.gameObject);
+                {
+                    try
+                    {
+                        DestroyImmediate(t?.gameObject);
+                    }
+                    catch(InvalidOperationException e)
+                    {
+                        
+                    }
+                }
             });
         }
     }

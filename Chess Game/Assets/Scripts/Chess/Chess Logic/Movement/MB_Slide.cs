@@ -8,9 +8,9 @@ public class MB_Slide : MoveBehavior
     public Vector2Int dir;
     public int range = 0;
 
-    protected override List<Vector2Int> GetMoves_Abstract(Piece piece, Vector2Int? previousPos = null)
+    protected override List<MoveData> GetMoves_Abstract(Piece piece, Vector2Int? previousPos = null, bool isThreatMap = false)
     {
-        List<Vector2Int> moves = new List<Vector2Int>();
+        List<MoveData> moves = new List<MoveData>();
 
         Vector2Int pieceSpacePos = piece.currentPos;
         if (previousPos != null)
@@ -42,7 +42,7 @@ public class MB_Slide : MoveBehavior
             {
                 if(piece.IsOnSameTeam(space.piece))
                 {
-                    // if same team, move invalid and done
+                    // if same team, move pos invalid and done
                     break;
                 }
                 else
@@ -54,7 +54,8 @@ public class MB_Slide : MoveBehavior
 
             // if valid
             // add new pos to moves
-            moves.Add(boardPos);
+            MoveData moveData = new MoveData(piece, piece.currentPos, boardPos);
+            moves.Add(moveData);
         }
 
         return moves;
