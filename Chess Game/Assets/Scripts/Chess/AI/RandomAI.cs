@@ -12,7 +12,9 @@ public class RandomAI : ChessAI
             Piece randomPiece = pieceList[Random.Range(0, pieceList.Count)];
             List<MoveData> randomMoveList = randomPiece.GetMoves();
             if (randomMoveList.Count == 0) continue;
+
             MoveData randomMove = randomMoveList[Random.Range(0, randomMoveList.Count)];
+            return randomMove;
         }
 
         return null;
