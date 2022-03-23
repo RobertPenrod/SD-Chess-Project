@@ -10,6 +10,7 @@ public class Piece : ScriptableObject
     public Vector2Int currentPos;
     public int teamNumber;
     public MoveBehavior moveBehavior;
+    public char fenChar;
     public bool hasMoved { get; private set; }
 
     [HideInInspector] public Board board;
