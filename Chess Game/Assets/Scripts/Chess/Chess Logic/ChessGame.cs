@@ -91,6 +91,8 @@ public class ChessGame
 
     MoveData lastMove;
 
+    public List<EnPassantData> enPassantDataList = new List<EnPassantData>();
+
     // Events
     public Action OnEndTurn_Event;
 
@@ -115,6 +117,7 @@ public class ChessGame
         stateData.turnCount = turnCount;
         stateData.lastMove = lastMove?.GetClone();
 
+        // Piece Data
         foreach(Piece p in pieceList)
         {
             // Construct piece data
@@ -129,6 +132,13 @@ public class ChessGame
             // Add pieceData to stateData
             stateData.pieceData.Add(pieceData);
         }
+
+        // En Passant Data
+        foreach(EnPassantData enPassantData in enPassantDataList)
+        {
+            stateData.enPassantDataList.Add(new EnPassantData(enPassantData));
+        }
+
         return stateData;
     }
 
@@ -140,9 +150,17 @@ public class ChessGame
         turnCount = stateData.turnCount;
         lastMove = stateData.lastMove?.GetClone();
 
+        // Load Piece Data
         foreach(PieceData pData in stateData.pieceData)
         {
             CreatePieceFromPieceData(pData);
+        }
+
+        // Load En Passant Data
+        enPassantDataList.Clear();
+        foreach(EnPassantData loadedEnPassantData in stateData.enPassantDataList)
+        {
+            enPassantDataList.Add(new EnPassantData(loadedEnPassantData));
         }
 
         UpdateGameInfo();
@@ -194,7 +212,22 @@ public class ChessGame
     {
         UpdateGameInfo();
         StartNextTurn();
+        CleanEnPassantData();
         OnEndTurn_Event?.Invoke();
+    }
+
+    void CleanEnPassantData()
+    {
+        for(int i = 0; i < enPassantDataList.Count; i++)
+        {
+            EnPassantData data = enPassantDataList[i];
+            if(data.enPassantablePiece.teamNumber == turnIndex)
+            {
+                enPassantDataList.RemoveAt(i);
+                i--;
+                continue;
+            }
+        }
     }
 
     void UpdateGameInfo()
@@ -274,5 +307,36 @@ public class ChessGame
 
         EndTurn();
         return succesfulMove;
+    }
+
+    public List<EnPassantData> FindEnPassants(Vector2Int pos, Piece passantingPiece)
+    {
+        List<EnPassantData> foundEnPassants = new List<EnPassantData>();
+        foreach (EnPassantData enPassantData in enPassantDataList)
+        {
+            if (enPassantData.capturePos == pos && !passantingPiece.IsOnSameTeam(enPassantData.enPassantablePiece))
+            {
+                foundEnPassants.Add(enPassantData);
+            }
+        }
+        return foundEnPassants;
+    }
+
+    public void CapturePiece(Piece p)
+    {
+        p.RemoveFromBoard();
+    }
+
+    public void CapturePiece(Vector2Int piecePos, int boardIndex = 0)
+    {
+        Piece pieceToCapture = gameBoardList[boardIndex].GetSpace(piecePos).piece;
+        if (pieceToCapture != null)
+        {
+            CapturePiece(pieceToCapture);
+        }
+        else
+        {
+            Debug.Log("Tried to capture piece at " + piecePos + " but no piece found");
+        }
     }
 }

@@ -48,6 +48,9 @@ public abstract class MoveBehavior : ScriptableObject
             {
                 // Drop En Passant Zone behind piece,
                 // Zone is cleared when player owning piece takes their next turn.
+                Vector2Int enPassantPos = piece.currentPos - piece.board.GetPieceForwardDir(piece);
+                EnPassantData enPassantData = new EnPassantData(enPassantPos, piece);
+                piece.chessGame.enPassantDataList.Add(enPassantData);
             });
         }
 
@@ -138,12 +141,37 @@ public abstract class MoveBehavior : ScriptableObject
                     continue;
                 }
             }
-            else if(!canMove)
+            else // Space doesnt have a piece
             {
-                // remove current move since it is not a capture
-                moves.RemoveAt(i);
-                i--;
-                continue;
+                if (!canMove) // piece can't move unless it has a capture
+                {
+                    // Check for enpassant data
+
+                    bool moveValid = false;
+                    if(canTakeEnPassant && canCapture)
+                    {
+                        List<EnPassantData> enPassantList = piece.chessGame.FindEnPassants(movePos, piece);
+                        if(enPassantList.Count > 0)
+                        {
+                            moveValid = true;
+                            moves[i].OnMoveMade_Event += () =>
+                            {
+                                enPassantList.ForEach(x =>
+                                {
+                                    piece.chessGame.CapturePiece(x.piecePos);
+                                });
+                            };
+                        }
+                    }
+
+                    if (!moveValid)
+                    {
+                        // remove current move since it is not a capture
+                        moves.RemoveAt(i);
+                        i--;
+                        continue;
+                    }
+                }
             }
         }
         return moves;
