@@ -231,7 +231,7 @@ public class ChessGame
         return pieceList;
     }
 
-    List<Piece> GetEnemyPieces(int teamIndex)
+    public List<Piece> GetEnemyPieces(int teamIndex)
     {
         List<Piece> totalPieces = new List<Piece>();
         for(int i = 0; i < teamInfo.Length; i++)
