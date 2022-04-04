@@ -275,4 +275,12 @@ public class ChessGame
         EndTurn();
         return succesfulMove;
     }
+
+    public ChessGame CreateSimulatedCloneGame()
+    {
+        ChessGame testGame = new ChessGame(gameBoardList[0].boardSize, playerCount);
+        testGame.pieceMap = pieceMap;
+        testGame.LoadState(GetState());
+        return testGame;
+    }
 }
