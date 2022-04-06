@@ -72,12 +72,12 @@ public class ChessGameManager : MonoBehaviour
 
         StateData stateData = new StateData();
         stateData.pieceData.Add(new PieceData(1, 1, new Vector2Int(0, 0)));
-        stateData.pieceData.Add(new PieceData(2, 1, new Vector2Int(1, 0)));
-        stateData.pieceData.Add(new PieceData(3, 1, new Vector2Int(2, 0)));
+        //stateData.pieceData.Add(new PieceData(2, 1, new Vector2Int(1, 0)));
+        //stateData.pieceData.Add(new PieceData(3, 1, new Vector2Int(2, 0)));
         stateData.pieceData.Add(new PieceData(4, 1, new Vector2Int(3, 0)));
         stateData.pieceData.Add(new PieceData(5, 1, new Vector2Int(4, 0)));
-        stateData.pieceData.Add(new PieceData(3, 1, new Vector2Int(5, 0)));
-        stateData.pieceData.Add(new PieceData(2, 1, new Vector2Int(6, 0)));
+        // stateData.pieceData.Add(new PieceData(3, 1, new Vector2Int(5, 0)));
+        //stateData.pieceData.Add(new PieceData(2, 1, new Vector2Int(6, 0)));
         stateData.pieceData.Add(new PieceData(1, 1, new Vector2Int(7, 0)));
 
         stateData.pieceData.Add(new PieceData(0, 1, new Vector2Int(0, 1)));
@@ -90,12 +90,12 @@ public class ChessGameManager : MonoBehaviour
         stateData.pieceData.Add(new PieceData(0, 1, new Vector2Int(7, 1)));
 
         stateData.pieceData.Add(new PieceData(1, 2, new Vector2Int(0, 7)));
-        stateData.pieceData.Add(new PieceData(2, 2, new Vector2Int(1, 7)));
-        stateData.pieceData.Add(new PieceData(3, 2, new Vector2Int(2, 7)));
+        //stateData.pieceData.Add(new PieceData(2, 2, new Vector2Int(1, 7)));
+        //stateData.pieceData.Add(new PieceData(3, 2, new Vector2Int(2, 7)));
         stateData.pieceData.Add(new PieceData(4, 2, new Vector2Int(3, 7)));
         stateData.pieceData.Add(new PieceData(5, 2, new Vector2Int(4, 7)));
-        stateData.pieceData.Add(new PieceData(3, 2, new Vector2Int(5, 7)));
-        stateData.pieceData.Add(new PieceData(2, 2, new Vector2Int(6, 7)));
+        //stateData.pieceData.Add(new PieceData(3, 2, new Vector2Int(5, 7)));
+        //stateData.pieceData.Add(new PieceData(2, 2, new Vector2Int(6, 7)));
         stateData.pieceData.Add(new PieceData(1, 2, new Vector2Int(7, 7)));
 
         stateData.pieceData.Add(new PieceData(0, 2, new Vector2Int(0, 6)));
