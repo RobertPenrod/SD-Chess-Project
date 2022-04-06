@@ -339,4 +339,12 @@ public class ChessGame
             Debug.Log("Tried to capture piece at " + piecePos + " but no piece found");
         }
     }
+    
+    public ChessGame CreateSimulatedCloneGame()
+    {
+        ChessGame testGame = new ChessGame(gameBoardList[0].boardSize, playerCount);
+        testGame.pieceMap = pieceMap;
+        testGame.LoadState(GetState());
+        return testGame;
+    }
 }
