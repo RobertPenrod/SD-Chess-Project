@@ -17,4 +17,6 @@ MonoBehaviour:
   currentPos: {x: 0, y: 0}
   teamNumber: 0
   moveBehavior: {fileID: 11400000, guid: 82a5110cd7e208f4d89e4f5b682c0aff, type: 2}
+  pointValue: 5
   board: {fileID: 0}
+  mapIndex: 0
