@@ -89,6 +89,8 @@ public class ChessGame
     public int turnIndex { get; private set; }
     public int turnCount { get; private set; }
 
+    public bool IsSimulation = false;
+
     MoveData lastMove;
 
     public List<EnPassantData> enPassantDataList = new List<EnPassantData>();
@@ -103,6 +105,21 @@ public class ChessGame
         gameBoardList.Add(newBoard);
 
         this.playerCount = playerCount;
+        turnIndex = 1;
+        turnCount = 1;
+        InitTeamInfo();
+        UpdateGameInfo();
+    }
+
+    public ChessGame(ChessGame chessGame)
+    {
+        Vector2Int initBoardSize = chessGame.gameBoardList[0].boardSize;
+        Board newBoard = new Board(initBoardSize);
+        gameBoardList.Add(newBoard);
+
+        pieceMap.AddRange(chessGame.pieceMap);
+
+        this.playerCount = chessGame.playerCount;
         turnIndex = 1;
         turnCount = 1;
         InitTeamInfo();
@@ -192,6 +209,11 @@ public class ChessGame
     #endregion
 
 
+    public TeamInfo GetPiecesTeamInfo(Piece p)
+    {
+        return teamInfo[p.teamNumber];
+    }
+
     void InitTeamInfo()
     {
         teamInfo = new TeamInfo[playerCount+1];
@@ -230,7 +252,7 @@ public class ChessGame
         }
     }
 
-    void UpdateGameInfo()
+    public void UpdateGameInfo()
     {
         UpdateAllThreatMaps();
         UpdatePiecesInCheck();
@@ -275,13 +297,17 @@ public class ChessGame
         return totalPieces;
     }
 
-    public bool MakeMove(Vector2Int start, Vector2Int dest, int boardNum = 0, bool isSimulation = false)
+    public bool MakeMove(Vector2Int start, Vector2Int dest, int boardNum = 0, bool doEndTurn = true)
     {
         Board moveBoard = gameBoardList[boardNum];
         Piece movePiece = moveBoard.GetSpace(start)?.piece;
-        if (movePiece == null) return false;
+        if (movePiece == null)
+        {
+            Debug.Log("Make Move Error: movePiece is null");
+            return false;
+        }
 
-        List<MoveData> moveDataList = movePiece.GetMoves(isSimulation : isSimulation);
+        List<MoveData> moveDataList = movePiece.GetMoves();
         MoveData moveMade = null;
         foreach (MoveData move in moveDataList)
         {
@@ -293,7 +319,7 @@ public class ChessGame
         }
         if (moveMade == null)
         {
-            Debug.LogWarning("Invalid Move from: " + start + " to " + dest);
+            Debug.Log("Invalid Move from: " + start + " to " + dest);
             return false;
         }
 
@@ -304,9 +330,26 @@ public class ChessGame
             moveMade.OnMoveMade_Event?.Invoke();
             lastMove = new MoveData(movePiece, start, dest);
         }
+        else
+        {
+            Debug.Log("Move not succesful");
+        }
 
-        EndTurn();
+        if (doEndTurn)
+        {
+            EndTurn();
+        }
         return succesfulMove;
+    }
+
+    public bool ForceMove(Vector2Int start, Vector2Int dest, int boardNum = 0)
+    {
+        Board board = gameBoardList[boardNum];
+        Space space = board.GetSpace(start);
+        if (space == null) return false;
+        Piece movePiece = space.piece;
+        if (movePiece == null) return false;
+        return movePiece.MovePiece(dest);
     }
 
     public List<EnPassantData> FindEnPassants(Vector2Int pos, Piece passantingPiece)

@@ -22,8 +22,12 @@ public abstract class MoveBehavior : ScriptableObject
         MoveAndCapture
     }
 
-    public List<MoveData> GetMoves(Piece piece, Vector2Int? previousPos = null, bool removeCheckMoves = false)
+    public List<MoveData> GetMoves(Piece piece, Vector2Int? previousPos = null)
     {
+        bool isSimulation = piece.chessGame.IsSimulation;
+        bool removeCheckMoves = !isSimulation;
+        bool addCastlingMoves = !isSimulation;
+
         bool canGetMove = piece.board != null && (!firstMoveOnly || !piece.hasMoved);
         if (!canGetMove)
         {
@@ -32,6 +36,11 @@ public abstract class MoveBehavior : ScriptableObject
 
         Board board = piece.board;
         List<MoveData> moves = GetMoves_Abstract(piece, previousPos);
+
+        if(piece.canCastle && addCastlingMoves)
+        {
+            //moves.AddRange(GetCastlingMoves(piece));
+        }
 
         moves = FilterMoveAndCapture(moves, piece);
         moves = RemoveDuplicateMoves(moves, piece);
@@ -57,6 +66,95 @@ public abstract class MoveBehavior : ScriptableObject
         return moves;
     }
     protected abstract List<MoveData> GetMoves_Abstract(Piece piece, Vector2Int? previousPos = null, bool isThreatMap = false);
+
+    List<MoveData> GetCastlingMoves(Piece piece)
+    {
+        Debug.Log("Get Castling Moves");
+        List<MoveData> castlingMoveList = new List<MoveData>();
+        if (piece.hasMoved) return castlingMoveList;
+
+        Piece leftPiece = PieceCast(piece, Vector2Int.left);
+        Piece upPiece = PieceCast(piece, Vector2Int.up);
+        Piece rightPiece = PieceCast(piece, Vector2Int.right);
+        Piece downPiece = PieceCast(piece, Vector2Int.down);
+        List<Piece> foundPieceList = new List<Piece> { leftPiece, upPiece, rightPiece, downPiece };
+        List<Vector2Int> pieceDir = new List<Vector2Int> { Vector2Int.left, Vector2Int.up, Vector2Int.right, Vector2Int.down };
+        for(int i = 0; i < foundPieceList.Count; i++)
+        {
+            Piece castleWallPiece = foundPieceList[i];
+            if (castleWallPiece == null) continue;
+
+            if (Vector2Int.Distance(castleWallPiece.currentPos, piece.currentPos) < 2f) continue;
+
+            bool isFoundPieceValidForCastle = castleWallPiece.castleWall && !castleWallPiece.hasMoved;
+            if (!isFoundPieceValidForCastle) continue;
+
+            // Found piece is valid for castle
+            // we know its direction.
+            // we need to check if we can move "piece" 2 spaces towards the castle wall,
+            // making sure that the player who owns this piece is not in check when they do these 2 moves.
+            Vector2Int dir = pieceDir[i];
+            Vector2Int dest1 = piece.currentPos + dir;
+            Vector2Int dest2 = dest1 + dir;
+
+            //ChessGame testGame = new ChessGame(piece.chessGame);
+            //testGame.LoadState(piece.chessGame.GetState());
+
+            ChessGame mainGame = piece.chessGame;
+            ChessGame testGame = new ChessGame(mainGame.gameBoardList[0].boardSize, mainGame.playerCount);
+            testGame.IsSimulation = true;
+            testGame.pieceMap = mainGame.pieceMap;
+            testGame.LoadState(mainGame.GetState());
+
+            Debug.Log(foundPieceList[i].name + " " + dir);
+            Debug.Log("Testing Move " + piece.currentPos + " to " + dest1);
+            bool moveSuccesful_1 = testGame.MakeMove(piece.currentPos, dest1, doEndTurn: false);
+            if (!moveSuccesful_1) continue;
+            testGame.UpdateGameInfo();
+            if (testGame.GetPiecesTeamInfo(piece).isInCheck) continue;
+
+            Debug.Log("Move 1 Valid");
+            bool moveSuccesful_2 = testGame.MakeMove(dest1, dest2, doEndTurn: false);
+            if (!moveSuccesful_2) continue;
+            testGame.UpdateGameInfo();
+            if (testGame.GetPiecesTeamInfo(piece).isInCheck) continue;
+
+            Debug.Log("Move 2 Valid");
+            Debug.Log("Testing Move " + castleWallPiece.currentPos + " to " + dest1);
+            bool moveSuccesful_3 = testGame.ForceMove(castleWallPiece.currentPos, dest1);
+            if (!moveSuccesful_3) continue;
+            testGame.UpdateGameInfo();
+            if (testGame.GetPiecesTeamInfo(piece).isInCheck) continue;
+
+            Debug.Log("Move 3 Valid");
+
+            // At this point, the castle move is valid
+            Vector2Int castlePos = piece.currentPos += dir * 2;
+            MoveData castleMove = new MoveData(piece, piece.currentPos, castlePos);
+            castleMove.OnMoveMade_Event += () =>
+            {
+                piece.chessGame.MakeMove(castleWallPiece.currentPos, piece.currentPos + dir);
+            };
+            castlingMoveList.Add(castleMove);
+        }
+        Debug.Log("Found " + castlingMoveList.Count + " Castle Moves");
+        return castlingMoveList;
+    }
+
+    Piece PieceCast(Piece startingPiece, Vector2Int dir)
+    {
+        Vector2Int startPos = startingPiece.currentPos;
+        for(Vector2Int searchPos = startPos + dir; startingPiece.board.IsPosOnBoard(searchPos); searchPos += dir)
+        {
+            Space searchSpace = startingPiece.board.GetSpace(searchPos);
+            Piece foundPiece = searchSpace.piece;
+            if(foundPiece != null)
+            {
+                return foundPiece;
+            }
+        }
+        return null;
+    }
 
     public List<MoveData> GetThreatMapMoves(Piece piece)
     {
@@ -86,7 +184,7 @@ public abstract class MoveBehavior : ScriptableObject
         {
             Vector2Int dest = move.dest;
             testGame.LoadState(mainGame.GetState());
-            bool moveSuccesful = testGame.MakeMove(piece.currentPos, dest, isSimulation : true);
+            bool moveSuccesful = testGame.MakeMove(piece.currentPos, dest);
 
             // Testing
             StateData testState = testGame.GetState();

@@ -76,7 +76,7 @@ public class ChessGameManager : MonoBehaviour
         //stateData.pieceData.Add(new PieceData(3, 1, new Vector2Int(2, 0)));
         stateData.pieceData.Add(new PieceData(4, 1, new Vector2Int(3, 0)));
         stateData.pieceData.Add(new PieceData(5, 1, new Vector2Int(4, 0)));
-        // stateData.pieceData.Add(new PieceData(3, 1, new Vector2Int(5, 0)));
+        //stateData.pieceData.Add(new PieceData(3, 1, new Vector2Int(5, 0)));
         //stateData.pieceData.Add(new PieceData(2, 1, new Vector2Int(6, 0)));
         stateData.pieceData.Add(new PieceData(1, 1, new Vector2Int(7, 0)));
 
