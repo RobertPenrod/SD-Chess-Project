@@ -386,6 +386,7 @@ public class ChessGame
     public ChessGame CreateSimulatedCloneGame()
     {
         ChessGame testGame = new ChessGame(gameBoardList[0].boardSize, playerCount);
+        testGame.IsSimulation = true;
         testGame.pieceMap = pieceMap;
         testGame.LoadState(GetState());
         return testGame;

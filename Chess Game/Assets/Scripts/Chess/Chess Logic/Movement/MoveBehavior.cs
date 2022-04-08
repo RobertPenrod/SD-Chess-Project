@@ -39,7 +39,7 @@ public abstract class MoveBehavior : ScriptableObject
 
         if(piece.canCastle && addCastlingMoves)
         {
-            //moves.AddRange(GetCastlingMoves(piece));
+            moves.AddRange(GetCastlingMoves(piece));
         }
 
         moves = FilterMoveAndCapture(moves, piece);
@@ -101,41 +101,37 @@ public abstract class MoveBehavior : ScriptableObject
             //testGame.LoadState(piece.chessGame.GetState());
 
             ChessGame mainGame = piece.chessGame;
-            ChessGame testGame = new ChessGame(mainGame.gameBoardList[0].boardSize, mainGame.playerCount);
-            testGame.IsSimulation = true;
-            testGame.pieceMap = mainGame.pieceMap;
-            testGame.LoadState(mainGame.GetState());
+            ChessGame testGame = piece.chessGame.CreateSimulatedCloneGame();
 
-            Debug.Log(foundPieceList[i].name + " " + dir);
-            Debug.Log("Testing Move " + piece.currentPos + " to " + dest1);
+            // Move 1 test
             bool moveSuccesful_1 = testGame.MakeMove(piece.currentPos, dest1, doEndTurn: false);
             if (!moveSuccesful_1) continue;
             testGame.UpdateGameInfo();
             if (testGame.GetPiecesTeamInfo(piece).isInCheck) continue;
 
-            Debug.Log("Move 1 Valid");
+            // Move 2 test
             bool moveSuccesful_2 = testGame.MakeMove(dest1, dest2, doEndTurn: false);
             if (!moveSuccesful_2) continue;
             testGame.UpdateGameInfo();
             if (testGame.GetPiecesTeamInfo(piece).isInCheck) continue;
 
-            Debug.Log("Move 2 Valid");
-            Debug.Log("Testing Move " + castleWallPiece.currentPos + " to " + dest1);
+            // Move 3 test
             bool moveSuccesful_3 = testGame.ForceMove(castleWallPiece.currentPos, dest1);
             if (!moveSuccesful_3) continue;
             testGame.UpdateGameInfo();
             if (testGame.GetPiecesTeamInfo(piece).isInCheck) continue;
 
-            Debug.Log("Move 3 Valid");
-
-            // At this point, the castle move is valid
-            Vector2Int castlePos = piece.currentPos += dir * 2;
+            // At this point, the castle move doesn't puy the player in check.
+            Vector2Int castlePos = piece.currentPos + dir * 2;
             MoveData castleMove = new MoveData(piece, piece.currentPos, castlePos);
             castleMove.OnMoveMade_Event += () =>
             {
-                piece.chessGame.MakeMove(castleWallPiece.currentPos, piece.currentPos + dir);
+                Debug.Log("Castling move took");
+                Debug.Log(castleWallPiece.currentPos + " " + dest1);
+                piece.chessGame.ForceMove(castleWallPiece.currentPos, dest1);
             };
             castlingMoveList.Add(castleMove);
+            Debug.Log("Castle Move: " + castlePos);
         }
         Debug.Log("Found " + castlingMoveList.Count + " Castle Moves");
         return castlingMoveList;
@@ -184,7 +180,7 @@ public abstract class MoveBehavior : ScriptableObject
         {
             Vector2Int dest = move.dest;
             testGame.LoadState(mainGame.GetState());
-            bool moveSuccesful = testGame.MakeMove(piece.currentPos, dest);
+            bool moveSuccesful = testGame.ForceMove(piece.currentPos, dest);
 
             // Testing
             StateData testState = testGame.GetState();
