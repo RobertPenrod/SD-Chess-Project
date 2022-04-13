@@ -8,6 +8,8 @@ public class StateData
     public int turnIndex = 1;
     public int turnCount = 1;
     public MoveData lastMove;
+    public int BoardValuePlayerOne;
+    public int BoardValuePlayerTwo;
 }
 
 public class PieceData

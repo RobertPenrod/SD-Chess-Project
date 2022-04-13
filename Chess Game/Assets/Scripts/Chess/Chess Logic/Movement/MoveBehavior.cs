@@ -74,8 +74,7 @@ public abstract class MoveBehavior : ScriptableObject
         int teamNum = piece.teamNumber;
         ChessGame mainGame = piece.chessGame;
 
-        ChessGame testGame = new ChessGame(mainGame.gameBoardList[0].boardSize, mainGame.playerCount);
-        testGame.pieceMap = mainGame.pieceMap;
+        ChessGame testGame = piece.chessGame.CreateSimulatedCloneGame();
 
         ChessGameManager gameManager = MonoBehaviour.FindObjectOfType<ChessGameManager>();
         gameManager.checkTestStateList.Clear();

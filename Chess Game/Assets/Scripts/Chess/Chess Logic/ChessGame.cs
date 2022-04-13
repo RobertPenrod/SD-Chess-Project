@@ -88,7 +88,6 @@ public class ChessGame
     public int playerCount { get; private set; }
     public int turnIndex { get; private set; }
     public int turnCount { get; private set; }
-
     MoveData lastMove;
 
     // Events
@@ -114,8 +113,10 @@ public class ChessGame
         stateData.turnIndex = turnIndex;
         stateData.turnCount = turnCount;
         stateData.lastMove = lastMove?.GetClone();
+        stateData.BoardValuePlayerOne = GetBoardValue(1);
+        stateData.BoardValuePlayerTwo = GetBoardValue(2);
 
-        foreach(Piece p in pieceList)
+        foreach (Piece p in pieceList)
         {
             // Construct piece data
             PieceData pieceData = new PieceData();
@@ -242,6 +243,21 @@ public class ChessGame
         return totalPieces;
     }
 
+    // Returns value of player's team pieces - enemy's team pieces. 
+    // Higher value is good for player.
+    public int GetBoardValue(int teamIndex)
+    {
+        int boardValue = 0;
+        List<Piece> totalPieces = GetAllPieces();
+        for (int i = 0; i < totalPieces.Count; i++)
+        {
+            if (totalPieces[i].teamNumber == teamIndex) boardValue += totalPieces[i].pointValue;
+            else boardValue -= totalPieces[i].pointValue;
+
+        }
+        return boardValue;
+    }
+
     public bool MakeMove(Vector2Int start, Vector2Int dest, int boardNum = 0, bool isSimulation = false)
     {
         Board moveBoard = gameBoardList[boardNum];
@@ -274,5 +290,13 @@ public class ChessGame
 
         EndTurn();
         return succesfulMove;
+    }
+
+    public ChessGame CreateSimulatedCloneGame()
+    {
+        ChessGame testGame = new ChessGame(gameBoardList[0].boardSize, playerCount);
+        testGame.pieceMap = pieceMap;
+        testGame.LoadState(GetState());
+        return testGame;
     }
 }

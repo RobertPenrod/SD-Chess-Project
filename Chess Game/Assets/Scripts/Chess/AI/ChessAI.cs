@@ -7,6 +7,7 @@ public abstract class ChessAI : MonoBehaviour
     [SerializeField] ChessGameManager gameToPlay;
     [SerializeField] protected int teamNumber = 2;
 
+
     public abstract MoveData GetMove(ChessGame chessGame);
 
     private void Start()
