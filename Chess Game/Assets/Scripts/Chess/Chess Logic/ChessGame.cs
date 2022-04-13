@@ -251,8 +251,20 @@ public class ChessGame
         List<Piece> totalPieces = GetAllPieces();
         for (int i = 0; i < totalPieces.Count; i++)
         {
-            if (totalPieces[i].teamNumber == teamIndex) boardValue += totalPieces[i].pointValue;
-            else boardValue -= totalPieces[i].pointValue;
+            if (totalPieces[i].teamNumber == teamIndex) {
+                if (totalPieces[i].board == null)
+                {
+                    boardValue -= totalPieces[i].pointValue * 2;
+                }
+                boardValue += totalPieces[i].pointValue;
+            } 
+            else {
+                if (totalPieces[i].board == null)
+                {
+                    boardValue += totalPieces[i].pointValue * 2;
+                }
+                else boardValue -= totalPieces[i].pointValue;
+            }
 
         }
         return boardValue;
