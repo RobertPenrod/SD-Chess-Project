@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class SearchNode
+public class SearchNode 
 {
     public StateData chessGame;
-    public List<SearchNode> children;
+    public List<SearchNode> children = new List<SearchNode>();
     public MoveData currMove;
 
     public SearchNode(StateData chessGame, MoveData currMove)
@@ -25,6 +25,11 @@ public class SearchNode
     {
         return children;
     }
+
+    public void AddChildren(SearchNode child)
+    {
+        children.Add(child);
+    }
 }
 
 /*  
@@ -33,15 +38,17 @@ public class SearchNode
  */
 public class SearchTree : MonoBehaviour
 {
+    ChessGame mainGame;
     SearchNode root;
     int depth;
+    int i;
 
-    public SearchTree(StateData rootGame, int depth)
+    public SearchTree(ChessGame rootGame, int depth)
     {
-        this.root.chessGame = rootGame;
-        this.root.children = null;
+        this.mainGame = rootGame;
+        this.root = new SearchNode(rootGame.GetState(), rootGame.GetState().lastMove);
         this.depth = depth;
-        populate(root, 0, opposite(rootGame.lastMove.piece.teamNumber));
+        populate(mainGame, root, 0, opposite(root.chessGame.turnIndex));
     }
 
     public int opposite(int curPlayer)
@@ -55,21 +62,18 @@ public class SearchTree : MonoBehaviour
         return this.root;
     }
 
-    /*
-     * Starting with current game and until depth is reached, 
-     * turn enemy pieces' moves into children of current node.
-     * Then recursively call method on each child.
-     */
-    public void populate(SearchNode node, int curDepth, int curPlayer)
+    /* Building the entire tree for even a low depth is way too much memory so the approach is:
+     * If less than four moves possible, just make all of them children. Otherwise,
+     * sort the children then call populate. 
+    */ 
+    public void populate(ChessGame parentGame, SearchNode node, int curDepth, int curPlayer)
     {
-        if (curDepth == this.depth) return;
+        if (curDepth > this.depth) return;
 
         // Loading in dummy chess game to get info from. 
-        ChessGame dummyGame = new ChessGame();
+        ChessGame dummyGame = parentGame.CreateSimulatedCloneGame();
         dummyGame.LoadState(node.chessGame);
 
-        // Get enemy's pieces/moves and make them into nodes, children of node. 
-        List<SearchNode> children = null;
         List<Piece> curPieces = dummyGame.GetEnemyPieces(curPlayer);
         for (int i = 0; i < curPieces.Count; i++)
         {
@@ -79,24 +83,8 @@ public class SearchTree : MonoBehaviour
                 ChessGame placeHolder = dummyGame.CreateSimulatedCloneGame();
                 placeHolder.MakeMove(pieceMoves[j].start, pieceMoves[j].dest);
                 SearchNode searchNode = new SearchNode(placeHolder.GetState(), pieceMoves[j]);
-                children.Add(searchNode);
-                populate(searchNode, curDepth + 1, opposite(curPlayer));
-            }
-        }
-    }
-
-    /*  
-     *  When a move is made (and we progress from the previous chess game),
-     *  that move's node becomes the new root. 
-     */
-    public void newParent(MoveData newParent)
-    {
-        for (int i = 0; i < root.children.Count; i++)
-        {
-            if (newParent == root.children[i].currMove)
-            {
-                root = root.children[i];
-                return;
+                node.AddChildren(searchNode);
+                populate(placeHolder, searchNode, curDepth + 1, opposite(curPlayer));
             }
         }
     }

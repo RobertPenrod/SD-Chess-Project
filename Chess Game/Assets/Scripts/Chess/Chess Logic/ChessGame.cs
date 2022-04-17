@@ -130,6 +130,7 @@ public class ChessGame
             // Add pieceData to stateData
             stateData.pieceData.Add(pieceData);
         }
+        
         return stateData;
     }
 
@@ -140,12 +141,12 @@ public class ChessGame
         turnIndex = stateData.turnIndex;
         turnCount = stateData.turnCount;
         lastMove = stateData.lastMove?.GetClone();
+        
 
         foreach(PieceData pData in stateData.pieceData)
         {
             CreatePieceFromPieceData(pData);
         }
-
         UpdateGameInfo();
     }
 
@@ -278,6 +279,7 @@ public class ChessGame
 
         List<MoveData> moveDataList = movePiece.GetMoves(isSimulation : isSimulation);
         MoveData moveMade = null;
+        Debug.Log("taking");
         foreach (MoveData move in moveDataList)
         {
             if (move.dest == dest)
@@ -286,6 +288,7 @@ public class ChessGame
                 break;
             }
         }
+        Debug.Log("too long");
         if (moveMade == null)
         {
             Debug.LogWarning("Invalid Move from: " + start + " to " + dest);
