@@ -88,7 +88,12 @@ public class ChessGame
     public int playerCount { get; private set; }
     public int turnIndex { get; private set; }
     public int turnCount { get; private set; }
+
+    public bool IsSimulation = false;
+
     MoveData lastMove;
+
+    public List<EnPassantData> enPassantDataList = new List<EnPassantData>();
 
     // Events
     public Action OnEndTurn_Event;
@@ -106,6 +111,21 @@ public class ChessGame
         UpdateGameInfo();
     }
 
+    public ChessGame(ChessGame chessGame)
+    {
+        Vector2Int initBoardSize = chessGame.gameBoardList[0].boardSize;
+        Board newBoard = new Board(initBoardSize);
+        gameBoardList.Add(newBoard);
+
+        pieceMap.AddRange(chessGame.pieceMap);
+
+        this.playerCount = chessGame.playerCount;
+        turnIndex = 1;
+        turnCount = 1;
+        InitTeamInfo();
+        UpdateGameInfo();
+    }
+
     #region State
     public StateData GetState()
     {
@@ -113,10 +133,9 @@ public class ChessGame
         stateData.turnIndex = turnIndex;
         stateData.turnCount = turnCount;
         stateData.lastMove = lastMove?.GetClone();
-        stateData.BoardValuePlayerOne = GetBoardValue(1);
-        stateData.BoardValuePlayerTwo = GetBoardValue(2);
 
-        foreach (Piece p in pieceList)
+        // Piece Data
+        foreach(Piece p in pieceList)
         {
             // Construct piece data
             PieceData pieceData = new PieceData();
@@ -130,7 +149,13 @@ public class ChessGame
             // Add pieceData to stateData
             stateData.pieceData.Add(pieceData);
         }
-        
+
+        // En Passant Data
+        foreach(EnPassantData enPassantData in enPassantDataList)
+        {
+            stateData.enPassantDataList.Add(new EnPassantData(enPassantData));
+        }
+
         return stateData;
     }
 
@@ -141,12 +166,20 @@ public class ChessGame
         turnIndex = stateData.turnIndex;
         turnCount = stateData.turnCount;
         lastMove = stateData.lastMove?.GetClone();
-        
 
+        // Load Piece Data
         foreach(PieceData pData in stateData.pieceData)
         {
             CreatePieceFromPieceData(pData);
         }
+
+        // Load En Passant Data
+        enPassantDataList.Clear();
+        foreach(EnPassantData loadedEnPassantData in stateData.enPassantDataList)
+        {
+            enPassantDataList.Add(new EnPassantData(loadedEnPassantData));
+        }
+
         UpdateGameInfo();
     }
 
@@ -176,6 +209,11 @@ public class ChessGame
     #endregion
 
 
+    public TeamInfo GetPiecesTeamInfo(Piece p)
+    {
+        return teamInfo[p.teamNumber];
+    }
+
     void InitTeamInfo()
     {
         teamInfo = new TeamInfo[playerCount+1];
@@ -196,10 +234,25 @@ public class ChessGame
     {
         UpdateGameInfo();
         StartNextTurn();
+        CleanEnPassantData();
         OnEndTurn_Event?.Invoke();
     }
 
-    void UpdateGameInfo()
+    void CleanEnPassantData()
+    {
+        for(int i = 0; i < enPassantDataList.Count; i++)
+        {
+            EnPassantData data = enPassantDataList[i];
+            if(data.enPassantablePiece.teamNumber == turnIndex)
+            {
+                enPassantDataList.RemoveAt(i);
+                i--;
+                continue;
+            }
+        }
+    }
+
+    public void UpdateGameInfo()
     {
         UpdateAllThreatMaps();
         UpdatePiecesInCheck();
@@ -244,42 +297,18 @@ public class ChessGame
         return totalPieces;
     }
 
-    // Returns value of player's team pieces - enemy's team pieces. 
-    // Higher value is good for player.
-    public int GetBoardValue(int teamIndex)
-    {
-        int boardValue = 0;
-        List<Piece> totalPieces = GetAllPieces();
-        for (int i = 0; i < totalPieces.Count; i++)
-        {
-            if (totalPieces[i].teamNumber == teamIndex) {
-                if (totalPieces[i].board == null)
-                {
-                    boardValue -= totalPieces[i].pointValue * 2;
-                }
-                boardValue += totalPieces[i].pointValue;
-            } 
-            else {
-                if (totalPieces[i].board == null)
-                {
-                    boardValue += totalPieces[i].pointValue * 2;
-                }
-                else boardValue -= totalPieces[i].pointValue;
-            }
-
-        }
-        return boardValue;
-    }
-
-    public bool MakeMove(Vector2Int start, Vector2Int dest, int boardNum = 0, bool isSimulation = false)
+    public bool MakeMove(Vector2Int start, Vector2Int dest, int boardNum = 0, bool doEndTurn = true)
     {
         Board moveBoard = gameBoardList[boardNum];
         Piece movePiece = moveBoard.GetSpace(start)?.piece;
-        if (movePiece == null) return false;
+        if (movePiece == null)
+        {
+            Debug.Log("Make Move Error: movePiece is null");
+            return false;
+        }
 
-        List<MoveData> moveDataList = movePiece.GetMoves(isSimulation : isSimulation);
+        List<MoveData> moveDataList = movePiece.GetMoves();
         MoveData moveMade = null;
-        Debug.Log("taking");
         foreach (MoveData move in moveDataList)
         {
             if (move.dest == dest)
@@ -288,10 +317,9 @@ public class ChessGame
                 break;
             }
         }
-        Debug.Log("too long");
         if (moveMade == null)
         {
-            Debug.LogWarning("Invalid Move from: " + start + " to " + dest);
+            Debug.Log("Invalid Move from: " + start + " to " + dest);
             return false;
         }
 
@@ -302,14 +330,63 @@ public class ChessGame
             moveMade.OnMoveMade_Event?.Invoke();
             lastMove = new MoveData(movePiece, start, dest);
         }
+        else
+        {
+            Debug.Log("Move not succesful");
+        }
 
-        EndTurn();
+        if (doEndTurn)
+        {
+            EndTurn();
+        }
         return succesfulMove;
     }
 
+    public bool ForceMove(Vector2Int start, Vector2Int dest, int boardNum = 0)
+    {
+        Board board = gameBoardList[boardNum];
+        Space space = board.GetSpace(start);
+        if (space == null) return false;
+        Piece movePiece = space.piece;
+        if (movePiece == null) return false;
+        return movePiece.MovePiece(dest);
+    }
+
+    public List<EnPassantData> FindEnPassants(Vector2Int pos, Piece passantingPiece)
+    {
+        List<EnPassantData> foundEnPassants = new List<EnPassantData>();
+        foreach (EnPassantData enPassantData in enPassantDataList)
+        {
+            if (enPassantData.capturePos == pos && !passantingPiece.IsOnSameTeam(enPassantData.enPassantablePiece))
+            {
+                foundEnPassants.Add(enPassantData);
+            }
+        }
+        return foundEnPassants;
+    }
+
+    public void CapturePiece(Piece p)
+    {
+        p.RemoveFromBoard();
+    }
+
+    public void CapturePiece(Vector2Int piecePos, int boardIndex = 0)
+    {
+        Piece pieceToCapture = gameBoardList[boardIndex].GetSpace(piecePos).piece;
+        if (pieceToCapture != null)
+        {
+            CapturePiece(pieceToCapture);
+        }
+        else
+        {
+            Debug.Log("Tried to capture piece at " + piecePos + " but no piece found");
+        }
+    }
+    
     public ChessGame CreateSimulatedCloneGame()
     {
         ChessGame testGame = new ChessGame(gameBoardList[0].boardSize, playerCount);
+        testGame.IsSimulation = true;
         testGame.pieceMap = pieceMap;
         testGame.LoadState(GetState());
         return testGame;

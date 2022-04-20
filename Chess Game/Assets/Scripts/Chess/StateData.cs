@@ -8,8 +8,7 @@ public class StateData
     public int turnIndex = 1;
     public int turnCount = 1;
     public MoveData lastMove;
-    public int BoardValuePlayerOne;
-    public int BoardValuePlayerTwo;
+    public List<EnPassantData> enPassantDataList = new List<EnPassantData>();
 }
 
 public class PieceData
@@ -27,5 +26,26 @@ public class PieceData
         this.mapIndex = mapIndex;
         this.team = team;
         this.position = position;
+    }
+}
+
+public class EnPassantData
+{
+    public Vector2Int capturePos;
+    public Piece enPassantablePiece;
+    public Vector2Int piecePos;
+
+    public EnPassantData(Vector2Int capturePos, Piece enPassantablePiece)
+    {
+        this.capturePos = capturePos;
+        this.enPassantablePiece = enPassantablePiece;
+        this.piecePos = enPassantablePiece.currentPos;
+    }
+
+    public EnPassantData(EnPassantData otherData)
+    {
+        this.capturePos = otherData.capturePos;
+        this.enPassantablePiece = otherData.enPassantablePiece;
+        this.piecePos = otherData.piecePos;
     }
 }

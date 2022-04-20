@@ -9,9 +9,19 @@ public class Piece : ScriptableObject
     public bool isRoyal;
     public Vector2Int currentPos;
     public int teamNumber;
+    public int pointValue;
     public MoveBehavior moveBehavior;
-    public int pointValue; // Used for AI.
     public bool hasMoved { get; private set; }
+
+    /// <summary>
+    /// Whether or not this piece can castle as a standard king would.
+    /// </summary>
+    public bool canCastle;
+
+    /// <summary>
+    /// The piece that slides to the other side of the castling piece (the Rook using standard pieces).
+    /// </summary>
+    public bool castleWall;
 
     [HideInInspector] public Board board;
     [HideInInspector] public ChessGame chessGame;
@@ -78,9 +88,9 @@ public class Piece : ScriptableObject
         return true;
     }
 
-    public List<MoveData> GetMoves(bool isSimulation = false)
+    public List<MoveData> GetMoves()
     {
-        return moveBehavior.GetMoves(this, removeCheckMoves : !isSimulation);
+        return moveBehavior.GetMoves(this);
     }
 
     public List<Vector2Int> GetThreatMap()
