@@ -45,7 +45,7 @@ public abstract class MoveBehavior : ScriptableObject
         moves = FilterMoveAndCapture(moves, piece);
         moves = RemoveDuplicateMoves(moves, piece);
 
-        if (removeCheckMoves)
+        if (removeCheckMoves && (piece.chessGame.MatchSettings == null || piece.chessGame.MatchSettings.Goal == MatchSettings.GoalType.Checkmate))
         {
             moves = RemoveCheckMoves(moves, piece);
         }
@@ -173,31 +173,21 @@ public abstract class MoveBehavior : ScriptableObject
 
         ChessGame testGame = piece.chessGame.CreateSimulatedCloneGame();
 
-        ChessGameManager gameManager = MonoBehaviour.FindObjectOfType<ChessGameManager>();
-        gameManager.checkTestStateList.Clear();
-
         foreach (MoveData move in moveList)
         {
             Vector2Int dest = move.dest;
             testGame.LoadState(mainGame.GetState());
             bool moveSuccesful = testGame.ForceMove(piece.currentPos, dest);
-
-            // Testing
-            StateData testState = testGame.GetState();
-            gameManager.checkTestStateList.Add(testState);
+            testGame.UpdateGameInfo();
 
             bool inCheck = testGame.teamInfo[teamNum].isInCheck;
 
             int stateNum = moveList.IndexOf(move);
-            //Debug.Log("State " + stateNum + ", team 2 in check: " + testGame.teamInfo[2].isInCheck + ", team " + teamNum + ": " + inCheck);
-
             if (moveSuccesful && !inCheck)
             {
                 finalMoves.Add(move);
             }
         }
-
-        //gameManager.ShowTestStates();
 
         return finalMoves;
     }
@@ -251,7 +241,7 @@ public abstract class MoveBehavior : ScriptableObject
                             {
                                 enPassantList.ForEach(x =>
                                 {
-                                    piece.chessGame.CapturePiece(x.piecePos);
+                                    piece.chessGame.CapturePiece(x.piecePos, piece);
                                 });
                             };
                         }

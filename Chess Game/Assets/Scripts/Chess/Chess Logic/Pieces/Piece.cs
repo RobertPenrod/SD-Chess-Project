@@ -34,6 +34,11 @@ public class Piece : ScriptableObject
         return teamNumber == otherPiece.teamNumber;
     }
 
+    public bool IsOnSameTeam(int otherTeamNum)
+    {
+        return teamNumber == otherTeamNum;
+    }
+
     public void AddToBoard(Board newBoard, Vector2Int pos)
     {
         RemoveFromBoard(); // remove from previous board if applicable.
@@ -78,7 +83,10 @@ public class Piece : ScriptableObject
 
         board.GetSpace(currentPos).piece = null;
 
-        targetSpace.piece?.RemoveFromBoard(); // Capture piece
+        if (targetSpace.piece != null)
+        {
+            chessGame.CapturePiece(targetSpace.piece, this);
+        }
 
         targetSpace.piece = this;
         currentPos = newPos;

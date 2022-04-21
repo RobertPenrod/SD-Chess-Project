@@ -4,7 +4,7 @@ using UnityEngine;
 
 public abstract class ChessAI : MonoBehaviour
 {
-    [SerializeField] ChessGameManager gameToPlay;
+    [SerializeField] ChessGameManager_Old gameToPlay;
     [SerializeField] protected int teamNumber = 2;
 
     public abstract MoveData GetMove(ChessGame chessGame);
