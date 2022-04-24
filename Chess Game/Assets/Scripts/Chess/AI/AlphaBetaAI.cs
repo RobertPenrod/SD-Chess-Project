@@ -75,6 +75,7 @@ public class AlphaBetaAI : ChessAI
     public List<MoveData> generateMoves(ChessGame chessGame, int teamPlayer)
     {
         List<MoveData> ourMoves = new List<MoveData>();
+        Debug.Log("p");
         /*
         List<Piece> pieceList = chessGame.teamInfo[teamNumber].GetPieceList();
         for (int i = 0; i < pieceList.Count; i++)
@@ -90,6 +91,7 @@ public class AlphaBetaAI : ChessAI
         }
         */
         List<Piece> pieceList = chessGame.GetAllPieces();
+        Debug.Log("pieces: " + pieceList.Count);
         for (int i = 0; i < pieceList.Count; i++) {
             if (pieceList[i].teamNumber != teamPlayer) ourMoves.AddRange(pieceList[i].GetMoves());
             else continue;
@@ -161,10 +163,8 @@ public class AlphaBetaAI : ChessAI
         int blackMobility = 0;
 
         for (int i = 0; i < pieceList.Count; i++) {
-            if ((int)pieceList[i].currentPos.x < 0 || (int)pieceList[i].currentPos.x > 7) Debug.Log(pieceList[i].currentPos);
-            if ((int)pieceList[i].currentPos.y < 0 || (int)pieceList[i].currentPos.y > 7) Debug.Log("y: " + (int)pieceList[i].currentPos.y);
             if (pieceList[i].teamNumber == 2) { // white
-                if (pieceList[i].currentPos.x == -1 || pieceList[i].currentPos.y == -1) whiteWeight -= pieceList[i].pointValue * 10;
+                if (pieceList[i].currentPos.x == -1 || pieceList[i].currentPos.y == -1) whiteWeight -= pieceList[i].pointValue * 1000;
                 else {
                 switch (pieceList[i].pointValue) {
                     case 1: // pawn
@@ -191,7 +191,7 @@ public class AlphaBetaAI : ChessAI
             }
 
             else { // black
-                    if (pieceList[i].currentPos.x == -1 || pieceList[i].currentPos.y == -1) blackWeight -= pieceList[i].pointValue * 10;
+                    if (pieceList[i].currentPos.x == -1 || pieceList[i].currentPos.y == -1) blackWeight -= pieceList[i].pointValue * 1000;
                     else {
                     switch (pieceList[i].pointValue) {
                         case 1: // pawn
