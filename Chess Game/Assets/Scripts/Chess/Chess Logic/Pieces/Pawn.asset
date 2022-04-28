@@ -16,5 +16,9 @@ MonoBehaviour:
   isRoyal: 0
   currentPos: {x: 0, y: 0}
   teamNumber: 0
+  pointValue: 1
   moveBehavior: {fileID: 11400000, guid: 30a6d761b64c85a4dbd3a0c3687d7319, type: 2}
+  canCastle: 0
+  castleWall: 0
   board: {fileID: 0}
+  mapIndex: 0

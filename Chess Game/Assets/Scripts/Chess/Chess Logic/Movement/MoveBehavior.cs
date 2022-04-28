@@ -69,7 +69,6 @@ public abstract class MoveBehavior : ScriptableObject
 
     List<MoveData> GetCastlingMoves(Piece piece)
     {
-        Debug.Log("Get Castling Moves");
         List<MoveData> castlingMoveList = new List<MoveData>();
         if (piece.hasMoved) return castlingMoveList;
 
@@ -126,14 +125,11 @@ public abstract class MoveBehavior : ScriptableObject
             MoveData castleMove = new MoveData(piece, piece.currentPos, castlePos);
             castleMove.OnMoveMade_Event += () =>
             {
-                Debug.Log("Castling move took");
                 Debug.Log(castleWallPiece.currentPos + " " + dest1);
                 piece.chessGame.ForceMove(castleWallPiece.currentPos, dest1);
             };
             castlingMoveList.Add(castleMove);
-            Debug.Log("Castle Move: " + castlePos);
         }
-        Debug.Log("Found " + castlingMoveList.Count + " Castle Moves");
         return castlingMoveList;
     }
 
