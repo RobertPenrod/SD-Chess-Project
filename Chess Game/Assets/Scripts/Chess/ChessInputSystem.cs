@@ -37,12 +37,12 @@ public class ChessInputSystem : MonoBehaviour
     {
         if (!Input.GetMouseButtonDown(0)) return;
         if (selectedPieceUI == null) return;
-        if (selectedPieceUI.piece.teamNumber != gameManager.chessGame.turnIndex) return;
+        if (selectedPieceUI.piece.teamNumber != gameManager.ChessGame.turnIndex) return;
 
         Vector2Int mouseBoardPos = GetMouseBoardPos();
         if(possibleMovePositions.Contains(mouseBoardPos))
         {
-            gameManager.chessGame.MakeMove(selectedPieceUI.piece.currentPos, mouseBoardPos);
+            gameManager.ChessGame.MakeMove(selectedPieceUI.piece.currentPos, mouseBoardPos);
             pieceMoved = true;
             SelectPiece(null);
         }
@@ -53,7 +53,22 @@ public class ChessInputSystem : MonoBehaviour
         if (!Input.GetMouseButtonDown(0)) return;
 
         PieceGO newPiece = GetMoseOverPiece();
-        if (newPiece == null || newPiece == selectedPieceUI || newPiece.piece.teamNumber != gameManager.chessGame.turnIndex)
+
+        // Block selections if game over
+        if(newPiece != null && newPiece.piece.chessGame.IsGameOver)
+        {
+            SelectPiece(null);
+            return;
+        }
+
+        // Block selections if piece is captured
+        if(newPiece != null && newPiece.piece.board == null)
+        {
+            SelectPiece(null);
+            return;
+        }
+        
+        if (newPiece == null || newPiece == selectedPieceUI || newPiece.piece.teamNumber != gameManager.ChessGame.turnIndex)
         {
             SelectPiece(null);
             return;

@@ -11,6 +11,7 @@ public class ChessGame
         List<Piece> pieceList;
         List<Piece> royalPieceList;
         public List<Vector2Int> threatMap;
+        public bool HasLost;
 
         public TeamInfo()
         {
@@ -18,6 +19,7 @@ public class ChessGame
             pieceList = new List<Piece>();
             royalPieceList = new List<Piece>();
             threatMap = new List<Vector2Int>();
+            HasLost = false;
         }
 
         public void Clear()
@@ -57,6 +59,17 @@ public class ChessGame
                 });
                 threatMap.Add(currentMove);
             }
+
+            // Variant settings
+            if (pieceList.Count > 0)
+            {
+                ChessGame chessGame = pieceList[0]?.chessGame;
+                int teamNum = pieceList[0].teamNumber;
+                if (chessGame.OnCalculateThreatMap_Event != null)
+                {
+                    threatMap = chessGame.OnCalculateThreatMap_Event.Invoke(new CalculateThreatMapEventData(teamNum, threatMap));
+                }
+            }
         }
 
         public void UpdateInCheck(TeamInfo[] teams)
@@ -69,6 +82,8 @@ public class ChessGame
                     TeamInfo otherTeam = teams[i];
                     if (otherTeam == this) continue;
 
+                    if (otherTeam.threatMap == null) continue;
+
                     bool pieceInCheck = otherTeam.threatMap.Contains(p.currentPos);
                     if(pieceInCheck)
                     {
@@ -78,12 +93,48 @@ public class ChessGame
                 }
             }
         }
+
+        public List<MoveData> GetMoves()
+        {
+            List<MoveData> moveList = new List<MoveData>();
+            foreach (Piece p in pieceList)
+            {
+                moveList.AddRange(p.GetMoves());
+            }
+            return moveList;
+        }
+
+        public int GetUncapturedRoyalCount()
+        {
+            int count = 0;
+            foreach(Piece p in royalPieceList)
+            {
+                if (p.board != null)
+                    count++;
+            }
+            return count;
+        }
+
+        public int GetUncapturedPieceCount()
+        {
+            int count = 0;
+            foreach (Piece p in pieceList)
+            {
+                if (p.board != null)
+                    count++;
+            }
+            return count;
+        }
     }
+
+    public MatchSettings MatchSettings;
 
     public List<Board> gameBoardList = new List<Board>();
     public List<Piece> pieceMap = new List<Piece>();
     List<Piece> pieceList = new List<Piece>();
     public TeamInfo[] teamInfo;
+
+    public bool IsGameOver { get; private set; }
 
     public int playerCount { get; private set; }
     public int turnIndex { get; private set; }
@@ -97,6 +148,34 @@ public class ChessGame
 
     // Events
     public Action OnEndTurn_Event;
+    public Action<CaptureEventData> OnCapture_Event;
+    public Func<CalculateThreatMapEventData, List<Vector2Int>> OnCalculateThreatMap_Event;
+
+    public class CaptureEventData
+    {
+        public Vector2Int CapturePos;
+        public Piece PieceToCapture;
+        public Piece AttackingPiece;
+
+        public CaptureEventData(Piece attackingPiece, Piece pieceToCapture, Vector2Int capturePos)
+        {
+            CapturePos = capturePos;
+            PieceToCapture = pieceToCapture;
+            AttackingPiece = attackingPiece;
+        }
+    };
+
+    public class CalculateThreatMapEventData
+    {
+        public int TeamNumber;
+        public List<Vector2Int> ThreatMap;
+
+        public CalculateThreatMapEventData(int teamNumber, List<Vector2Int> threatMap) 
+        {
+            TeamNumber = teamNumber;
+            ThreatMap = threatMap;
+        }
+    }
 
     public ChessGame(Vector2Int? boardSize = null, int playerCount = 2)
     {
@@ -234,6 +313,7 @@ public class ChessGame
     {
         UpdateGameInfo();
         StartNextTurn();
+        CheckWinCondition();
         CleanEnPassantData();
         OnEndTurn_Event?.Invoke();
     }
@@ -365,17 +445,18 @@ public class ChessGame
         return foundEnPassants;
     }
 
-    public void CapturePiece(Piece p)
+    public void CapturePiece(Piece p, Piece attackingPiece)
     {
+        OnCapture_Event?.Invoke(new CaptureEventData(attackingPiece, p, p.currentPos));
         p.RemoveFromBoard();
     }
 
-    public void CapturePiece(Vector2Int piecePos, int boardIndex = 0)
+    public void CapturePiece(Vector2Int piecePos, Piece attackingPiece, int boardIndex = 0)
     {
         Piece pieceToCapture = gameBoardList[boardIndex].GetSpace(piecePos).piece;
         if (pieceToCapture != null)
         {
-            CapturePiece(pieceToCapture);
+            CapturePiece(pieceToCapture, attackingPiece);
         }
         else
         {
@@ -385,10 +466,70 @@ public class ChessGame
     
     public ChessGame CreateSimulatedCloneGame()
     {
-        ChessGame testGame = new ChessGame(gameBoardList[0].boardSize, playerCount);
+        //ChessGame testGame = new ChessGame(gameBoardList[0].boardSize, playerCount);
+        ChessGame testGame = new ChessGame();
+        testGame.InitializeFromMatchSettings(MatchSettings);
+
         testGame.IsSimulation = true;
         testGame.pieceMap = pieceMap;
         testGame.LoadState(GetState());
         return testGame;
+    }
+
+    public void InitializeFromMatchSettings(MatchSettings matchSettings)
+    {
+        MatchSettings = matchSettings;
+
+        // Atomic Captures
+        if (MatchSettings.AtomicCaptures)
+        {
+            AtomicCapturesRule atomicCapturesRule = new AtomicCapturesRule();
+            atomicCapturesRule.BindGame(this);
+        }
+    }
+
+    void CheckWinCondition()
+    {
+        MatchSettings.GoalType goal = MatchSettings.Goal;
+        TeamInfo teamStartingTurn = teamInfo[turnIndex];
+
+        if(goal == MatchSettings.GoalType.Checkmate)
+        {
+            if(teamStartingTurn.GetMoves().Count == 0)
+            {
+                // team turnIndex loses
+                teamStartingTurn.HasLost = true;
+            }
+        }
+        else if(goal == MatchSettings.GoalType.CaptureKings)
+        {
+            if(teamStartingTurn.GetUncapturedRoyalCount() == 0)
+            {
+                teamStartingTurn.HasLost = true;
+            }
+        }
+        else if(goal == MatchSettings.GoalType.CaptureAllPieces)
+        {
+            if(teamStartingTurn.GetUncapturedPieceCount() == 0)
+            {
+                teamStartingTurn.HasLost = true;
+            }
+        }
+
+        List<int> remainingTeamNums = new List<int>();
+        for(int i = 1; i < teamInfo.Length; i++)
+        {
+            if(!teamInfo[i].HasLost)
+            {
+                remainingTeamNums.Add(i);
+            }
+        }
+
+        if(remainingTeamNums.Count == 1)
+        {
+            Debug.Log("Team " + remainingTeamNums[0] + " Wins!");
+            IsGameOver = true;
+            GameObject.FindObjectOfType<GameOverMenu>().GameOver(remainingTeamNums[0]);
+        }
     }
 }

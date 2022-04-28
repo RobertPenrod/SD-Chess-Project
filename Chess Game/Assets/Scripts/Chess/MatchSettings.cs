@@ -2,13 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public class MatchSettings
-{
-    public enum GoalType { Checkmate, Regicide, CaptureAllPieces};
+{ 
+    public enum GoalType { Checkmate, CaptureKings, CaptureAllPieces};
 
-    public GoalType goal = GoalType.Checkmate;
-    public bool atomicCaptures = false;
-    public bool aliceChess = false;
+    public GoalType Goal = GoalType.Checkmate;
+    public bool AtomicCaptures = false;
+    public bool AliceChess = false;
 
     // Board settings
     // size, custom shape, ect..
