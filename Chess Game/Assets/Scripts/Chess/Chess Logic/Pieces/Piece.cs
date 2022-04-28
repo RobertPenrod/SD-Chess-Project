@@ -9,6 +9,7 @@ public class Piece : ScriptableObject
     public bool isRoyal;
     public Vector2Int currentPos;
     public int teamNumber;
+    public int pointValue;
     public MoveBehavior moveBehavior;
     public bool hasMoved { get; private set; }
 
