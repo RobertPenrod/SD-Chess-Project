@@ -107,10 +107,16 @@ public class AlphaBetaAI : ChessAI
 
 
     // Team numbers in game are 1 and 2, but negamax uses -color for ease of calculating values for each side, so I use this method. 
-    public int converter(int color)
+    public int ColorToTeam(int color)
     {
         if (color == 1) return 2;
         else return 1;
+    }
+
+    public int TeamToColor(int teamNum)
+    {
+        if (teamNum == 2) return 1;
+        else return -1;
     }
     
     /*
@@ -265,7 +271,7 @@ public class AlphaBetaAI : ChessAI
 
         ChessGame dummyGame = parentGame.CreateSimulatedCloneGame();
         dummyGame.MakeMove(curMove.start, curMove.dest);
-        List<MoveData> ourMoves = generateMoves(dummyGame, converter(color)); 
+        List<MoveData> ourMoves = generateMoves(dummyGame, ColorToTeam(color)); 
         ourMoves = orderMoves(ourMoves);
      
 
@@ -290,7 +296,7 @@ public class AlphaBetaAI : ChessAI
 
     public override MoveData GetMove(ChessGame chessGame)
     {
-        List<MoveData> moveList = generateMoves(chessGame, 2); // If we end up giving the user the option to choose color this line needs to be changed/pass in user color as parameter. 
+        List<MoveData> moveList = generateMoves(chessGame, teamNumber); // If we end up giving the user the option to choose color this line needs to be changed/pass in user color as parameter. 
         Debug.Log(moveList.Count);
         /*
         List<Value> valueList = new List<Value>();

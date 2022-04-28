@@ -168,7 +168,7 @@ public abstract class MoveBehavior : ScriptableObject
         ChessGame mainGame = piece.chessGame;
 
         ChessGame testGame = piece.chessGame.CreateSimulatedCloneGame();
-        Debug.Log("Creating Remove Check Moves Test Game: " + testGame.IsSimulation);
+        //Debug.Log("Creating Remove Check Moves Test Game: " + testGame.IsSimulation);
 
         foreach (MoveData move in moveList)
         {

@@ -16,6 +16,8 @@ public class ChessInputSystem : MonoBehaviour
 
     ChessGameManager gameManager;
 
+    public List<int> selectableTeamList = new List<int>();
+
     List<Vector2Int> possibleMovePositions = new List<Vector2Int>();
 
     private void Awake()
@@ -63,6 +65,13 @@ public class ChessInputSystem : MonoBehaviour
 
         // Block selections if piece is captured
         if(newPiece != null && newPiece.piece.board == null)
+        {
+            SelectPiece(null);
+            return;
+        }
+
+        // Block selections if piece is not on a selectableTeam
+        if(newPiece != null && !selectableTeamList.Contains(newPiece.piece.teamNumber))
         {
             SelectPiece(null);
             return;

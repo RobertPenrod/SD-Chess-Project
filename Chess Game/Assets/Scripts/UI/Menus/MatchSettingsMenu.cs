@@ -10,6 +10,8 @@ public class MatchSettingsMenu : Menu
     [SerializeField] TMP_Dropdown _goalTypeUI;
     [SerializeField] Toggle _atomicCapturesUI;
     [SerializeField] Toggle _aliceChessUI;
+    [SerializeField] TMP_Dropdown _playerType1;
+    [SerializeField] TMP_Dropdown _playerType2;
 
     MatchSettings _matchSettings;
 
@@ -29,6 +31,8 @@ public class MatchSettingsMenu : Menu
         _matchSettings.Goal = (MatchSettings.GoalType)_goalTypeUI.value;
         _matchSettings.AliceChess = _aliceChessUI.isOn;
         _matchSettings.AtomicCaptures = _atomicCapturesUI.isOn;
+        _matchSettings.PlayerType1 = (MatchSettings.PlayerType)_playerType1.value;
+        _matchSettings.PlayerType2 = (MatchSettings.PlayerType)_playerType2.value;
     }
 
     public void Play()

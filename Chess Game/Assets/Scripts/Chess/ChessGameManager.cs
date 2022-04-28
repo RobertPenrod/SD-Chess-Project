@@ -54,6 +54,48 @@ public class ChessGameManager : MonoBehaviour
         CreateGraphicalPiecesForGameData(ChessGame, PieceHolder);
 
         ChessGame.InitializeFromMatchSettings(_matchSettings);
+
+        InitializePlayers();
+    }
+
+    void InitializePlayers()
+    {
+        ChessInputSystem inputSystem = FindObjectOfType<ChessInputSystem>();
+
+        if (!SetupAI(_matchSettings.PlayerType1, 1))
+        {
+            inputSystem.selectableTeamList.Add(1);
+        }
+
+        if(!SetupAI(_matchSettings.PlayerType2, 2))
+        {
+            inputSystem.selectableTeamList.Add(2);
+        }
+    }
+
+    bool SetupAI(MatchSettings.PlayerType playerType, int teamNum)
+    {
+        GameObject aiObject = null;
+        ChessAI playerAI = null;
+        if (playerType == MatchSettings.PlayerType.AI_AlphaBeta)
+        {
+            aiObject = new GameObject();
+            aiObject.name = "AI_AlphaBeta_" + teamNum;
+            playerAI = aiObject.AddComponent<AlphaBetaAI>();
+        }
+        else if (playerType == MatchSettings.PlayerType.AI_Random)
+        {
+            aiObject = new GameObject();
+            aiObject.name = "AI_Random_" + teamNum;
+            playerAI = aiObject.AddComponent<RandomAI>();
+        }
+
+        if (playerAI != null)
+        {
+            playerAI.Setup(this, teamNum);
+            return true;
+        }
+        return false;
     }
 
 
