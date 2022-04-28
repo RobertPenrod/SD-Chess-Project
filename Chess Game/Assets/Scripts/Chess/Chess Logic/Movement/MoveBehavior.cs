@@ -22,7 +22,7 @@ public abstract class MoveBehavior : ScriptableObject
         MoveAndCapture
     }
 
-    public List<MoveData> GetMoves(Piece piece, Vector2Int? previousPos = null)
+    public List<MoveData> GetMoves(Piece piece, Vector2Int? previousPos = null, bool isChildMoveBehavior = false)
     {
         bool isSimulation = piece.chessGame.IsSimulation;
         bool removeCheckMoves = !isSimulation;
@@ -45,7 +45,7 @@ public abstract class MoveBehavior : ScriptableObject
         moves = FilterMoveAndCapture(moves, piece);
         moves = RemoveDuplicateMoves(moves, piece);
 
-        if (removeCheckMoves && (piece.chessGame.MatchSettings == null || piece.chessGame.MatchSettings.Goal == MatchSettings.GoalType.Checkmate))
+        if (!isChildMoveBehavior && removeCheckMoves && (piece.chessGame.MatchSettings == null || piece.chessGame.MatchSettings.Goal == MatchSettings.GoalType.Checkmate))
         {
             moves = RemoveCheckMoves(moves, piece);
         }
@@ -168,6 +168,7 @@ public abstract class MoveBehavior : ScriptableObject
         ChessGame mainGame = piece.chessGame;
 
         ChessGame testGame = piece.chessGame.CreateSimulatedCloneGame();
+        Debug.Log("Creating Remove Check Moves Test Game: " + testGame.IsSimulation);
 
         foreach (MoveData move in moveList)
         {

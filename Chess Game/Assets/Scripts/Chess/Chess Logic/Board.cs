@@ -2,8 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Chess Logic/Board")]
-public class Board : ScriptableObject
+public class Board
 {
     public Vector2Int boardSize { get; private set; }
 

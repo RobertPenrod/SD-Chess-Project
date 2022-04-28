@@ -18,7 +18,7 @@ public class MB_List : MoveBehavior
             }
             else
             {
-                moves.AddRange(mb.GetMoves(piece, previousPos));
+                moves.AddRange(mb.GetMoves(piece, previousPos, true));
             }
         }
         return moves;

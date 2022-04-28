@@ -268,6 +268,7 @@ public class ChessGame
 
         Piece basePiece = pieceMap[pieceData.mapIndex];
         Piece newPiece = MonoBehaviour.Instantiate(basePiece);
+        Debug.Log("Instantiate Piece");
         newPiece.AddToBoard(gameBoardList[pieceData.boardIndex], pieceData.position);
         newPiece.teamNumber = pieceData.team;
         newPiece.mapIndex = pieceData.mapIndex;
