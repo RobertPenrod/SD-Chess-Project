@@ -90,11 +90,11 @@ public class AlphaBetaAI : ChessAI
             ourMoves.AddRange(pieceList[i].GetMoves());
         }
         */
-        List<Piece> pieceList = chessGame.GetAllPieces();
+        List<Piece> pieceList = chessGame.teamInfo[teamPlayer].GetPieceList();
         //Debug.Log("pieces: " + pieceList.Count);
-        for (int i = 0; i < pieceList.Count; i++) {
-            if (pieceList[i].teamNumber == teamPlayer) ourMoves.AddRange(pieceList[i].GetMoves());
-            else continue;
+        for (int i = 0; i < pieceList.Count; i++) 
+        {
+            ourMoves.AddRange(pieceList[i].GetMoves());
         }
         return ourMoves;
     }
