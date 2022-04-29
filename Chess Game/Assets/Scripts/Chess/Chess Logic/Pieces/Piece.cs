@@ -102,6 +102,9 @@ public class Piece : ScriptableObject
             chessGame.CapturePiece(targetSpace.piece, this);
         }
 
+        if (board == null)
+            return true;
+
         targetSpace.piece = this;
         currentPos = newPos;
 

@@ -324,6 +324,7 @@ public class ChessGame
     {
         if (lastMove == null) return;
         if (!lastMove.piece.isPromotable) return;
+        if (lastMove.piece.board == null) return;
         Vector2Int boardCheckPos = lastMove.piece.board.GetPieceForwardDir(lastMove.piece) + lastMove.piece.currentPos;
         if (lastMove.piece.board.IsPosOnBoard(boardCheckPos)) return;
 

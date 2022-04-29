@@ -30,6 +30,7 @@ public class AtomicCapturesRule : ChessVariantRule
             {
                 Vector2Int searchPos = capturePos + new Vector2Int(x, y);
 
+
                 Space space = board.GetSpace(searchPos);
                 if (space == null)
                     continue; // Space isn't on board, continue.
@@ -38,15 +39,19 @@ public class AtomicCapturesRule : ChessVariantRule
                 if (foundPiece == null)
                     continue; // No piece found, nothing to do.
 
+                /*
                 bool isFoundPieceEnemy = !foundPiece.IsOnSameTeam(eventData.AttackingPiece);
                 if (!isFoundPieceEnemy)
                     continue; // Found piece is on same team, do nothing
+                */
 
                 if (foundPiece.isImmuneToAtomicCapture) continue;
 
                 eventData.AttackingPiece.chessGame.CapturePiece(foundPiece, null);
             }
         }
+
+        eventData.AttackingPiece.RemoveFromBoard();
     }
 
     List<Vector2Int> OnCalculateThreatMap(ChessGame.CalculateThreatMapEventData eventData)
