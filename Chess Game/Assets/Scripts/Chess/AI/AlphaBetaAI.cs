@@ -75,7 +75,7 @@ public class AlphaBetaAI : ChessAI
     public List<MoveData> generateMoves(ChessGame chessGame, int teamPlayer)
     {
         List<MoveData> ourMoves = new List<MoveData>();
-        Debug.Log("p");
+        //Debug.Log("p");
         /*
         List<Piece> pieceList = chessGame.teamInfo[teamNumber].GetPieceList();
         for (int i = 0; i < pieceList.Count; i++)
@@ -91,9 +91,9 @@ public class AlphaBetaAI : ChessAI
         }
         */
         List<Piece> pieceList = chessGame.GetAllPieces();
-        Debug.Log("pieces: " + pieceList.Count);
+        //Debug.Log("pieces: " + pieceList.Count);
         for (int i = 0; i < pieceList.Count; i++) {
-            if (pieceList[i].teamNumber != teamPlayer) ourMoves.AddRange(pieceList[i].GetMoves());
+            if (pieceList[i].teamNumber == teamPlayer) ourMoves.AddRange(pieceList[i].GetMoves());
             else continue;
         }
         return ourMoves;
@@ -297,7 +297,7 @@ public class AlphaBetaAI : ChessAI
     public override MoveData GetMove(ChessGame chessGame)
     {
         List<MoveData> moveList = generateMoves(chessGame, teamNumber); // If we end up giving the user the option to choose color this line needs to be changed/pass in user color as parameter. 
-        Debug.Log(moveList.Count);
+        //Debug.Log(moveList.Count);
         /*
         List<Value> valueList = new List<Value>();
         originalDepth = 2;
@@ -319,7 +319,7 @@ public class AlphaBetaAI : ChessAI
         
         for (int i = 0; i < moveList.Count; i++)
         {
-            valueList.Add(alphaBeta(chessGame, moveList[i], 2, -10000, 10000, 1));
+            valueList.Add(alphaBeta(chessGame, moveList[i], 2, -10000, 10000, -TeamToColor(teamNumber)));
         }
         
         MoveData bestMove = moveList[0];

@@ -312,11 +312,22 @@ public class ChessGame
 
     public void EndTurn()
     {
+        CheckForPromotion();
         UpdateGameInfo();
         StartNextTurn();
         CheckWinCondition();
         CleanEnPassantData();
         OnEndTurn_Event?.Invoke();
+    }
+
+    void CheckForPromotion()
+    {
+        if (lastMove == null) return;
+        if (!lastMove.piece.isPromotable) return;
+        Vector2Int boardCheckPos = lastMove.piece.board.GetPieceForwardDir(lastMove.piece) + lastMove.piece.currentPos;
+        if (lastMove.piece.board.IsPosOnBoard(boardCheckPos)) return;
+
+        lastMove.piece.Promote();
     }
 
     void CleanEnPassantData()
@@ -528,9 +539,12 @@ public class ChessGame
 
         if(remainingTeamNums.Count == 1)
         {
-            Debug.Log("Team " + remainingTeamNums[0] + " Wins!");
             IsGameOver = true;
-            GameObject.FindObjectOfType<GameOverMenu>().GameOver(remainingTeamNums[0]);
+            if (!IsSimulation)
+            {
+                Debug.Log("Team " + remainingTeamNums[0] + " Wins!");
+                GameObject.FindObjectOfType<GameOverMenu>().GameOver(remainingTeamNums[0]);
+            }
         }
     }
 }

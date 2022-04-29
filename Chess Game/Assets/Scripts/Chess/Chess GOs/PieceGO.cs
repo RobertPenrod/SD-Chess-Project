@@ -20,6 +20,11 @@ public class PieceGO : MonoBehaviour
 
         float darkC = 0.5f;
         spriteRend.color = p.teamNumber == 1 ? Color.white : new Color(darkC, darkC, darkC);
+
+        p.OnPromotion_Event += () =>
+        {
+            spriteRend.sprite = p.icon;
+        };
     }
 
     private void Update()

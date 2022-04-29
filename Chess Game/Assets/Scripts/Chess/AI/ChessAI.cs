@@ -36,7 +36,10 @@ public abstract class ChessAI : MonoBehaviour
         // Add a delay so the AI does not play instantly
         ExtensionMethods.DelayedInvoke(0.5f, this, () =>
         {
-            MakeMove(gameToPlay.ChessGame);
+            if (!gameToPlay.ChessGame.IsGameOver)
+            {
+                MakeMove(gameToPlay.ChessGame);
+            }
         });
     }
 

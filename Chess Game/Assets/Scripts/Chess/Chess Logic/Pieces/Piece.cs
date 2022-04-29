@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,6 +13,9 @@ public class Piece : ScriptableObject
     public int pointValue;
     public MoveBehavior moveBehavior;
     public bool hasMoved { get; private set; }
+    public bool isImmuneToAtomicCapture;
+    public bool isPromotable;
+    public Piece pieceToPromoteTo;
 
     /// <summary>
     /// Whether or not this piece can castle as a standard king would.
@@ -25,6 +29,15 @@ public class Piece : ScriptableObject
 
     [HideInInspector] public Board board;
     [HideInInspector] public ChessGame chessGame;
+
+    public Action OnPromotion_Event;
+
+    public void Promote()
+    {
+        icon = pieceToPromoteTo.icon;
+        moveBehavior = pieceToPromoteTo.moveBehavior;
+        OnPromotion_Event?.Invoke();
+    }
 
     public Vector2Int forward => board.GetPieceForwardDir(this);
 

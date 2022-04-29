@@ -42,6 +42,8 @@ public class AtomicCapturesRule : ChessVariantRule
                 if (!isFoundPieceEnemy)
                     continue; // Found piece is on same team, do nothing
 
+                if (foundPiece.isImmuneToAtomicCapture) continue;
+
                 eventData.AttackingPiece.chessGame.CapturePiece(foundPiece, null);
             }
         }
