@@ -1230,6 +1230,8 @@ MonoBehaviour:
       m_Image: {fileID: 0}
     - m_Text: Random AI
       m_Image: {fileID: 0}
+    - m_Text: Random Greedy AI
+      m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -3049,6 +3051,8 @@ MonoBehaviour:
     - m_Text: Alpha Beta AI
       m_Image: {fileID: 0}
     - m_Text: Random AI
+      m_Image: {fileID: 0}
+    - m_Text: Random Greedy AI
       m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:

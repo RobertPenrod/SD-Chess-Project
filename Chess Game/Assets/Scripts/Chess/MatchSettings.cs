@@ -6,7 +6,7 @@ using UnityEngine;
 public class MatchSettings
 { 
     public enum GoalType { Checkmate, CaptureKings, CaptureAllPieces};
-    public enum PlayerType { Human, AI_AlphaBeta, AI_Random};
+    public enum PlayerType { Human, AI_AlphaBeta, AI_Random, AI_RandomGreedy};
 
     public GoalType Goal = GoalType.Checkmate;
     public bool AtomicCaptures = false;

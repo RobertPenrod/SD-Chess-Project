@@ -18,7 +18,9 @@ MonoBehaviour:
   teamNumber: 0
   pointValue: 1
   moveBehavior: {fileID: 11400000, guid: 30a6d761b64c85a4dbd3a0c3687d7319, type: 2}
+  isImmuneToAtomicCapture: 1
+  isPromotable: 1
+  pieceToPromoteTo: {fileID: 11400000, guid: 8daeeaed04042fc49907e8a0e63c60f7, type: 2}
   canCastle: 0
   castleWall: 0
-  board: {fileID: 0}
   mapIndex: 0

@@ -22,4 +22,16 @@ public class MoveData
     {
         return new MoveData(piece, start, dest);
     }
+
+    public bool IsCapture(out Piece capturedPiece)
+    {
+        capturedPiece = null;
+        Space destSpace = piece.board.GetSpace(dest);
+        if (destSpace == null) return false;
+        Piece destPiece = destSpace.piece;
+        if (destPiece == null) return false;
+
+        capturedPiece = destPiece;
+        return destPiece.teamNumber != piece.teamNumber;
+    }
 }

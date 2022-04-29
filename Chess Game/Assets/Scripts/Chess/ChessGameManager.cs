@@ -89,6 +89,12 @@ public class ChessGameManager : MonoBehaviour
             aiObject.name = "AI_Random_" + teamNum;
             playerAI = aiObject.AddComponent<RandomAI>();
         }
+        else if(playerType == MatchSettings.PlayerType.AI_RandomGreedy)
+        {
+            aiObject = new GameObject();
+            aiObject.name = "AI_RandomGreedy" + teamNum;
+            playerAI = aiObject.AddComponent<RandomGreedyAI>();
+        }
 
         if (playerAI != null)
         {
